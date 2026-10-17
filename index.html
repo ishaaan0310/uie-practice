@@ -27,6 +27,7 @@
   --accent:#4fc2a9; --accent-soft:#1d332d; --on-accent:#0b1512;
   --good:#5fd08a; --good-soft:#18301f; --bad:#ff8a80; --bad-soft:#3a1d1b; --new:#f0c060; --new-soft:#352a12; color-scheme:dark}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
 .wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
@@ -43,6 +44,10 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
 .seg button{border:0;background:transparent;padding:10px;border-radius:7px;font-weight:700;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
 .hint{margin:0;color:var(--muted);font-size:.9rem}
+.checks{display:flex;flex-direction:column;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.check{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:700}
+.check input{width:20px;height:20px;margin:0;accent-color:var(--accent);flex:none}
+.check small{display:block;font-weight:400;color:var(--muted);font-size:.82rem}
 .weeks{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px}
 .chip{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.2}
 .chip b{font-size:.95rem}.chip small{color:var(--muted);font-size:.72rem;font-variant-numeric:tabular-nums}
@@ -112,6 +117,10 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
         <button type="button" id="mTest" aria-pressed="false">Test</button>
       </div>
       <p class="hint" id="modeHint"></p>
+      <div class="checks" id="testOpts" hidden>
+        <label class="check" for="shufQ"><input type="checkbox" id="shufQ"><span>Shuffle questions<small>Ask questions in a random order</small></span></label>
+        <label class="check" for="shufO"><input type="checkbox" id="shufO"><span>Shuffle answer options<small>Mix up the order of A–D (“All of the above” stays last)</small></span></label>
+      </div>
     </div>
 
     <div class="panel">
@@ -366,7 +375,7 @@ const $=id=>document.getElementById(id);
 const store={get(k,d){try{const v=localStorage.getItem("uie."+k);return v?JSON.parse(v):d}catch(e){return d}},
              set(k,v){try{localStorage.setItem("uie."+k,JSON.stringify(v))}catch(e){}}};
 
-let cfg=store.get("cfg",{mode:"practice",weeks:[...WEEKS],orig:true,extra:true});
+let cfg=Object.assign({mode:"practice",weeks:[...WEEKS],orig:true,extra:true,shufQ:true,shufO:true},store.get("cfg",{}));
 cfg.weeks=cfg.weeks.filter(w=>WEEKS.includes(w));
 let S=null, tick=null, quitArmed=false;
 const BYID=Object.fromEntries(QS.map(q=>[q.id,q]));
@@ -402,7 +411,10 @@ function renderHome(){
   $("mTest").setAttribute("aria-pressed",cfg.mode==="test");
   $("modeHint").textContent=cfg.mode==="practice"
     ?"Answers are checked right away. Questions stay in order."
-    :"No answers shown until the end. Questions and options are shuffled.";
+    :"No answers shown until the end. You see your score and mistakes after finishing.";
+  $("testOpts").hidden=cfg.mode!=="test";
+  $("shufQ").checked=!!cfg.shufQ;
+  $("shufO").checked=!!cfg.shufO;
   const w=$("weeks"); w.innerHTML="";
   for(const wk of WEEKS){
     const n=QS.filter(q=>q.w===wk&&((q.x&&cfg.extra)||(!q.x&&cfg.orig))).length;
@@ -424,19 +436,21 @@ function renderHome(){
 function save(){store.set("cfg",cfg);renderHome()}
 $("mPractice").onclick=()=>{cfg.mode="practice";save()};
 $("mTest").onclick=()=>{cfg.mode="test";save()};
+$("shufQ").onchange=e=>{cfg.shufQ=e.target.checked;save()};
+$("shufO").onchange=e=>{cfg.shufO=e.target.checked;save()};
 $("allWeeks").onclick=()=>{cfg.weeks=cfg.weeks.length===WEEKS.length?[]:[...WEEKS];save()};
 $("setO").onclick=()=>{cfg.orig=!cfg.orig;if(!cfg.orig&&!cfg.extra)cfg.extra=true;save()};
 $("setX").onclick=()=>{cfg.extra=!cfg.extra;if(!cfg.orig&&!cfg.extra)cfg.orig=true;save()};
 $("start").onclick=()=>begin(pool(),cfg.mode,cfg.mode==="test"?"Test":"Practice");
-$("mock").onclick=()=>begin(shuffle(QS.filter(q=>(q.x&&cfg.extra)||(!q.x&&cfg.orig))).slice(0,65),"test","Mock test");
+$("mock").onclick=()=>{const pick=shuffle(QS.filter(q=>(q.x&&cfg.extra)||(!q.x&&cfg.orig))).slice(0,65);begin(cfg.shufQ?pick:pick.sort((a,b)=>QS.indexOf(a)-QS.indexOf(b)),"test","Mock test")};
 
 /* ---------- QUIZ ---------- */
 function show(v){for(const id of ["home","quiz","result"])$(id).hidden=id!==v;window.scrollTo(0,0)}
 function begin(list,mode,name){
   const test=mode==="test";
-  const qs=test?shuffle(list):list.slice();
+  const qs=test&&cfg.shufQ?shuffle(list):list.slice();
   S={mode,name,i:0,t0:Date.now(),
-     items:qs.map(q=>({q,order:optionOrder(q,test),pick:[],done:false}))};
+     items:qs.map(q=>({q,order:optionOrder(q,test&&cfg.shufO),pick:[],done:false}))};
   quitArmed=false;
   startClock(); saveSession();
   show("quiz");renderQ();
