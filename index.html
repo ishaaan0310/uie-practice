@@ -132,6 +132,7 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
     <div class="panel">
       <div class="row"><p class="label">Weeks</p><button type="button" class="link" id="allWeeks">Select all</button></div>
       <div class="weeks" id="weeks"></div>
+      <p class="hint" id="weeksHint" hidden>No week picked, so questions from all weeks are included.</p>
       <p class="label" style="margin-top:4px">Questions</p>
       <div class="sets">
         <button type="button" class="chip" id="setO" aria-pressed="true"><b>Original</b><small>130</small></button>
@@ -407,7 +408,7 @@ function optionOrder(q,mix){
   const pinned=idx.filter(i=>PIN.test(q.o[i].trim()));
   return [...shuffle(idx.filter(i=>!pinned.includes(i))),...pinned];
 }
-function pool(){return QS.filter(q=>cfg.weeks.includes(q.w)&&((q.x&&cfg.extra)||(!q.x&&cfg.orig)))}
+function pool(){const all=!cfg.weeks.length;return QS.filter(q=>(all||cfg.weeks.includes(q.w))&&((q.x&&cfg.extra)||(!q.x&&cfg.orig)))}
 const wLabel=w=>"Week "+w;
 const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
 
@@ -434,6 +435,7 @@ function renderHome(){
     w.appendChild(b);
   }
   $("allWeeks").textContent=cfg.weeks.length===WEEKS.length?"Clear":"Select all";
+  $("weeksHint").hidden=cfg.weeks.length>0;
   $("setO").setAttribute("aria-pressed",cfg.orig);
   $("setX").setAttribute("aria-pressed",cfg.extra);
   const n=pool().length;
