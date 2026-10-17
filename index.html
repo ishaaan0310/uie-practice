@@ -61,6 +61,18 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
 .primary:disabled{opacity:.45;cursor:not-allowed}
 .ghost{background:transparent;border:1px solid var(--line)}
 .last{margin:0;color:var(--muted);font-size:.85rem;text-align:center}
+.notes{display:flex;flex-direction:column;gap:10px}
+.notes details{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.notes summary{cursor:pointer;padding:13px 16px;font-weight:700;list-style:none;display:flex;justify-content:space-between;gap:10px}
+.notes summary::-webkit-details-marker{display:none}
+.notes summary::after{content:"+";color:var(--muted);font-weight:400}
+.notes details[open] summary::after{content:"−"}
+.notes summary small{color:var(--muted);font-weight:400}
+.notes ul{margin:0;padding:0 16px 14px 34px;display:flex;flex-direction:column;gap:6px}
+.notes li{line-height:1.45}
+.tips{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.tips h2{font-size:1.05rem}
+.tips ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
 /* quiz */
 .qtop{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .qtop .grow{flex:1}
@@ -136,13 +148,38 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
       <p class="label" style="margin-top:4px">Questions</p>
       <div class="sets">
         <button type="button" class="chip" id="setO" aria-pressed="true"><b>Original</b><small>130</small></button>
-        <button type="button" class="chip" id="setX" aria-pressed="true"><b>New likely</b><small>50</small></button>
+        <button type="button" class="chip" id="setX" aria-pressed="true"><b>New likely</b><small>100</small></button>
       </div>
     </div>
 
     <button type="button" class="btn primary" id="start">Start</button>
     <button type="button" class="btn ghost" id="mock">Mock test · 65 random questions</button>
+    <button type="button" class="btn ghost" id="notesBtn">Quick notes · key ideas &amp; exam tips</button>
     <p class="last" id="last"></p>
+  </section>
+
+  <!-- NOTES -->
+  <section id="notes" class="wrap" style="gap:16px" hidden>
+    <div class="qtop"><button type="button" class="x" id="notesBack">← Back</button><span class="grow"></span></div>
+    <h2 style="font-size:1.4rem">Quick notes</h2>
+    <p class="hint">Key ideas from every week, plus tactics for questions you have not seen before.</p>
+    <div class="tips"><h2>Tackling a new question</h2><ol><li><b>“All of the above” is usually right.</b> In the 130 course questions it was correct 10 times out of 11. If it's an option and at least two others look true, pick it.</li><li><b>Cross out extreme or negative options.</b> Answers with “only”, “solely”, “ignore”, “avoid”, “without” or “disregard” were correct just 2 times out of 125. About 1 in 5 wrong options use them.</li><li><b>Pick the customer.</b> When unsure, choose the option about understanding customer needs, getting feedback, validating or iterating. That is the course's core message.</li><li><b>Balanced beats one-sided.</b> Options that balance users, technology and business (desirability, feasibility, viability) beat ones that chase a single goal like profit or looks.</li><li><b>Prefer the specific, sensible option.</b> The longest, most precise option was correct about half the time, twice what guessing gives.</li><li><b>Multi-answer questions:</b> the app tells you how many to pick. Choose every option that is reasonable and positive, and drop the extreme ones.</li></ol></div>
+    <div class="notes">
+      <details><summary><span>Week 0 · Business basics</span></summary><ul><li>Business structures: sole proprietorship (one owner, unlimited liability), partnership (2+ owners share profit and responsibility), company/corporation (separate legal entity). A trademark is IP, not a structure.</li><li>IPO = Initial Public Offering. KPI = Key Performance Indicator. SWOT = Strengths, Weaknesses, Opportunities, Threats.</li><li>Unicorn = private startup valued over $1 billion (OYO, Swiggy).</li><li>Entrepreneurship = starting and running a venture that solves a problem; needs a target market, business plan and funding.</li></ul></details>
+      <details><summary><span>Week 1 · Ideas, disruption and Lean Startup</span></summary><ul><li>Lean Startup (Eric Ries): Build → Measure → Learn, minimise time through the loop, validated learning, pivot or persevere.</li><li>Disruptive innovation (Clayton Christensen): changes that challenge market norms, often starting cheaper or simpler. Schumpeter: entrepreneurs cause “creative destruction”.</li><li>Invention = new idea or device. Innovation = making it useful and adopted.</li><li>Failure still has value: lessons and insights. Common mistakes: building without customers, focusing on product over market.</li><li>Evidence-based entrepreneurship = decisions from data and experiments, not assumptions.</li></ul></details>
+      <details><summary><span>Week 2 · Founders, teams and early adopters</span></summary><ul><li>Top reason startups fail: no real market need. Funding does not guarantee success.</li><li>Customers validate a product, not founders or investors. Early adopters give critical feedback.</li><li>Strong teams: shared vision, complementary skills, communication, trust. Founders need strong belief in the vision.</li><li>When progress stalls: re-evaluate and pivot.</li><li>Burn rate = cash spent per month. Runway = months until cash runs out. Churn = customers who leave. Premature scaling = growing before product–market fit.</li></ul></details>
+      <details><summary><span>Week 3 · Design, teams and patents</span></summary><ul><li>Empathy leads to user-centred design. Ideal team = diverse skills and perspectives, low ego, flexible.</li><li>Design brief: functional and user requirements, pain points, user journeys. Problem statement: define the problem clearly, not the solution.</li><li>Regulations protect public health and ensure legal compliance.</li><li>Prior art = earlier patents and publications. Patent tests: novelty, inventive step (non-obvious), industrial use. Validity about 20 years. Provisional filing secures an early date. FTO checks you don't infringe others.</li></ul></details>
+      <details><summary><span>Week 4 · Customers and markets</span></summary><ul><li>Outside-in thinking = start from customer needs. Inside-out = start from your own tech.</li><li>Problem recognition scale: latent (unaware) → passive (aware, no motivation to change) → active/urgent (actively seeking a solution). Target active or urgent first.</li><li>Rural and sustainable products: government schemes, demonstrations, communities, local partners, affordable pricing.</li><li>Diffusion of Innovation: innovators → early adopters → early majority → late majority → laggards. The chasm sits between early adopters and early majority.</li><li>Investors want a real, solvable problem. New markets need cultural and economic understanding.</li></ul></details>
+      <details><summary><span>Week 5 · From lab to market</span></summary><ul><li>TRL (Technology Readiness Levels) 1–9: TRL 1 basic principles, TRL 4 lab validation, TRL 6 prototype in a relevant environment, TRL 9 proven in real operation.</li><li>Order: Proof of Concept → Prototype → Pilot production → Mass production. POC proves functional feasibility. Pilot runs test and adapt the design with users.</li><li>Secure IPR before commercialising. Anyone can license IPR: startups, industry, NGOs.</li><li>Healthcare startups: low device success rates, long clinical and regulatory timelines (CDSCO in India). Telemedicine eased hospital load in pandemics.</li><li>Technology transfer = moving lab research to industry, best done by partnering with industry.</li></ul></details>
+      <details><summary><span>Week 6 · Design research and strategy</span></summary><ul><li>Human-centred design: empathy and user research. Three lenses: desirability (people want it), feasibility (can be built), viability (makes business sense).</li><li>Interviews: build rapport and trust, ask open-ended questions about real past behaviour.</li><li>Tools: personas, empathy maps (say/think/do/feel), user journey maps, Five Whys for root cause, ethnography (observe in context).</li><li>Design management = a structured process to meet business goals through design. Clients want quality, speed and transparency.</li></ul></details>
+      <details><summary><span>Week 7 · Design thinking and business models</span></summary><ul><li>Design thinking: empathise → define → ideate → prototype → test. It is collaborative, iterative and non-linear.</li><li>Synectics = creativity by connecting unrelated ideas. Three critical factors: market need, technical feasibility, business viability.</li><li>Business Model Canvas (Osterwalder), 9 blocks: customer segments, value propositions, channels, customer relationships, revenue streams, key resources, key activities, key partners, cost structure.</li><li>Lean Canvas (Ash Maurya) adds problem, solution, key metrics and unfair advantage. It is used to test assumptions fast.</li><li>Models: fractional ownership (shared physical assets), subscription, freemium, collaborative. Double whammy = two bad things at once.</li></ul></details>
+      <details><summary><span>Week 8 · MVP, pitching and IP</span></summary><ul><li>MVP attracts early adopters and validates the idea with real customers. A prototype mainly tests design internally.</li><li>Lean Canvas steps: target customers → top 3 problems → solutions.</li><li>Pitch essentials: a scalable, profitable business model, clear value proposition. Elevator pitch is 30–60 seconds.</li><li>IP types: patent (inventions), copyright (creative expression), trademark (brand name or logo), trade secret (confidential know-how, no registration), industrial design (appearance).</li><li>Metrics: CAC = customer acquisition cost. LTV should be much greater than CAC. Acquisition strategy aims for long-term retention. A strong UVP attracts and keeps customers.</li></ul></details>
+      <details><summary><span>Week 9 · Funding and incubation</span></summary><ul><li>Barriers to action: low confidence, fear of feedback, funding. The most important relationship is with target customers.</li><li>Early funding: government grants, seed funding, crowdfunding, angel investors. Order: seed → Series A → B → C → IPO. VCs take equity, which dilutes founders.</li><li>Incubation stage = building the business plan and securing resources. Accelerators run short cohort programmes for fast growth.</li><li>Entrepreneur sees problems as business opportunities. Innovator focuses on solving the problem.</li><li>Commercialisation = taking an idea to industry through IP or tech transfer. Clinical immersion finds unmet healthcare needs. Startup India gives recognition and tax benefits.</li></ul></details>
+      <details><summary><span>Week 10 · Creativity and prototyping</span></summary><ul><li>Synectics analogies: direct (compare with nature, e.g. Velcro from burrs), personal (become the problem), symbolic (poetic, abstract image), fantasy (ideal or impossible solutions). Goal: break conventional thinking.</li><li>Prototyping methods: additive (3D printing), subtractive (CNC, laser cutting), forming (moulding, vacuum forming). Lateral thinking is not a method.</li><li>Development sequence: ideation → concept generation → prototyping → testing → market launch.</li><li>Reasoning: inductive (specific → general), deductive (general → specific), abductive (best guess from incomplete info, used in design).</li><li>Frugal innovation reduces waste and cost. Prototype early to find flaws.</li></ul></details>
+      <details><summary><span>Week 11 · Inclusive products and risk</span></summary><ul><li>For specially-abled users: user-centred design. Assistive tech should make users independent and socially included.</li><li>Success factors: relevant and differentiated. Startups should offer a unique product, not unrealistic promises.</li><li>Avoid cheap materials in B2C: returns and servicing cost more.</li><li>Risk: depending on a few corporate clients. B2B sales involve many stakeholders and longer cycles.</li><li>Human interaction builds empathy that AI lacks. Evidence-based products measure impact on target users. Scalability = revenue grows faster than costs.</li></ul></details>
+      <details><summary><span>Week 12 · Launch, marketing and pitching</span></summary><ul><li>Identify problems early to give development a clear direction. Modular, customisable products raise satisfaction and efficiency.</li><li>Beachhead market = one focused segment to win first, then expand to adjacent segments.</li><li>Startup marketing: innovative and lean, networking through targeted connections, word of mouth. Inverted pyramid model puts customer needs first.</li><li>Most crucial design step: identify the target customer segment.</li><li>Pitch: problem, solution, market size (TAM–SAM–SOM), business model, traction, team, financials, the ask. Explain clearly how the product solves the problem.</li></ul></details>
+    </div>
+    <button type="button" class="btn ghost" id="notesBack2">Back to practice</button>
   </section>
 
   <!-- QUIZ -->
@@ -321,7 +358,7 @@ const ORIGINAL=[
 [12,"What is an essential factor to focus on when pitching a business idea to investors?",["Presenting a vague and unclear concept","Avoiding discussions about market potential","Clearly articulating the value proposition and market fit","Presenting weak financial projections to lower expectations"],[2]]
 ];
 
-/* 50 new questions on the same weekly topics, written to match the exam's style */
+/* 100 extra questions on the same weekly topics, written to match the exam's style */
 const EXTRA=[
 [0,"What is a “unicorn” in the startup ecosystem?",["A company listed on the stock exchange for over 10 years","A privately held startup valued at over $1 billion","A startup funded only by government grants","A business with a single founder and no employees"],[1]],
 [0,"Which document outlines a company's goals, target market, strategy and financial projections?",["Balance sheet","Purchase order","Business plan","Patent application"],[2]],
@@ -372,7 +409,57 @@ const EXTRA=[
 [12,"After winning its beachhead market, what should a startup typically do next?",["Shut down operations","Stop doing customer research","Expand into adjacent market segments","Target every market at once"],[2]],
 [12,"Which of these are typical sections of an investor pitch deck?",["Problem and solution","Market size and business model","Team and financial projections","Employees' personal hobbies"],[0,1,2]],
 [12,"What does TAM–SAM–SOM stand for in market sizing?",["Total Addressable Market, Serviceable Available Market, Serviceable Obtainable Market","Target, Sales and Operations Metrics","Technology, Strategy and Organization Model","Total Assets, Sales and Operating Margin"],[0]],
-[12,"What is guerrilla marketing?",["Expensive TV-only advertising","Low-cost, unconventional and creative tactics to gain maximum attention","Marketing only to military customers","Avoiding all promotion"],[1]]
+[12,"What is guerrilla marketing?",["Expensive TV-only advertising","Low-cost, unconventional and creative tactics to gain maximum attention","Marketing only to military customers","Avoiding all promotion"],[1]],
+[0,"What is the main disadvantage of a sole proprietorship?",["Unlimited personal liability of the owner","Profits must be shared with partners","It must be listed on a stock exchange","It needs a board of directors"],[0]],
+[0,"Money invested to start and run a new business in its early days is called:",["Depreciation","Dividend","Startup capital","Inventory"],[2]],
+[1,"Who wrote “The Lean Startup” and popularised the Build–Measure–Learn loop?",["Steve Jobs","Eric Ries","Peter Drucker","Clayton Christensen"],[1]],
+[1,"Which economist described entrepreneurs as drivers of “creative destruction”?",["Adam Smith","John Maynard Keynes","Joseph Schumpeter","Milton Friedman"],[2]],
+[1,"Clayton Christensen is best known for the theory of:",["Disruptive innovation","Lean manufacturing","Blue ocean strategy","Five forces analysis"],[0]],
+[1,"What is the difference between an invention and an innovation?",["They mean exactly the same thing","Innovation always comes before invention","Inventions are only made by large companies","An invention is a new idea or device; an innovation is putting it into use so people adopt and value it"],[3]],
+[2,"What is a startup's “burn rate”?",["The speed of product development","The rate at which the startup spends its cash","The employee turnover rate","The customer churn rate"],[1]],
+[2,"A startup's “runway” refers to:",["How long it can keep operating before its cash runs out","The time taken to file a patent","The length of its launch event","The time taken to hire a CEO"],[0]],
+[2,"Customer churn means:",["New customers acquired in a month","Customers who refer others","Customers who stop using the product over a period","Customers in the beachhead market"],[2]],
+[2,"What does share vesting in a co-founder agreement help prevent?",["A co-founder leaving early while keeping a large share of equity","Customer complaints","Competitors entering the market","Product defects"],[0]],
+[3,"For how long is a patent typically valid in India and most countries?",["5 years","10 years","20 years from the filing date","The inventor's lifetime"],[2]],
+[3,"Which form of IP protects the visual shape or appearance of a product?",["Industrial design registration","Trade secret","Geographical indication","Copyright on software"],[0]],
+[3,"Why do inventors file a provisional patent application?",["To get a permanent trademark","To secure an early filing (priority) date while the invention is still being developed","To skip the prior art search","To start selling worldwide immediately"],[1]],
+[3,"What does a “Freedom to Operate” (FTO) analysis check?",["Whether your product infringes someone else's existing patents","Whether employees can work remotely","Whether the government allows startups","Whether you have enough funding"],[0]],
+[4,"In Rogers' Diffusion of Innovation curve, which group adopts a new product first?",["Early majority","Innovators","Laggards","Late majority"],[1]],
+[4,"In Geoffrey Moore's model, the “chasm” lies between:",["Innovators and early adopters","Early adopters and the early majority","Late majority and laggards","Early majority and late majority"],[1]],
+[4,"What are “Bottom of the Pyramid” (BoP) markets?",["Luxury markets for the very rich","Markets only for B2B products","Government procurement markets","Large low-income populations that can be served with affordable, innovative products"],[3]],
+[4,"A customer “pain point” is best described as:",["A specific problem or frustration the customer experiences","A pricing discount","A list of product features","A marketing slogan"],[0]],
+[5,"TRL 4 typically corresponds to:",["Basic principles observed and reported","Component or breadboard validation in a laboratory","System proven in its operational environment","Actual system completed and qualified"],[1]],
+[5,"Which body regulates and approves medical devices in India?",["SEBI","CDSCO (Central Drugs Standard Control Organisation)","TRAI","RBI"],[1]],
+[5,"What is technology transfer?",["Upgrading office computers","Moving employees between departments","Moving a technology from a lab or university to industry for commercial use","Importing machinery from abroad"],[2]],
+[5,"Why do healthcare product startups usually take longer to reach the market?",["Clinical validation and regulatory approvals take time","There is no market need in healthcare","Healthcare products cannot be patented","Investors are not allowed to fund them"],[0]],
+[6,"What is an empathy map?",["A tool that captures what users say, think, do and feel","A map of competitor locations","A financial forecast","A supply chain chart"],[0]],
+[6,"Which research method involves observing users in their natural environment?",["Balance sheet analysis","Ethnographic research or contextual inquiry","A/B price testing","SWOT analysis"],[1]],
+[6,"What is the “Five Whys” technique used for?",["Naming a product","Calculating return on investment","Finding the root cause of a problem","Choosing a logo"],[2]],
+[6,"In design, “desirability” asks:",["Do people actually want this?","Can it be built with available technology?","Will it make a profit?","Is it legal?"],[0]],
+[7,"In the Business Model Canvas, the “Channels” block describes:",["How the company reaches customers and delivers value to them","Who the key suppliers are","How costs are calculated","The company's legal structure"],[0]],
+[7,"Which of these describes a “freemium” business model?",["Everything is free forever","A basic version is free and premium features are paid","Customers pay once for lifetime access","Only enterprise customers pay"],[1]],
+[7,"Which business model charges customers a recurring fee for continued access?",["Auction model","Franchise model","Razor-and-blade model","Subscription model"],[3]],
+[7,"The Lean Canvas was adapted from the Business Model Canvas by:",["Ash Maurya","Alexander Osterwalder","Eric Ries","Steve Blank"],[0]],
+[8,"What is an elevator pitch?",["A detailed 50-page business plan","A short, clear summary of a business idea delivered in about 30–60 seconds","A pitch made only to elevator companies","A financial audit report"],[1]],
+[8,"What does CAC stand for in startup metrics?",["Customer Acquisition Cost","Capital Asset Calculation","Customer Average Churn","Company Annual Capital"],[0]],
+[8,"For a healthy business, Customer Lifetime Value (LTV) should be:",["Less than CAC","Equal to zero","Much greater than CAC","Unrelated to CAC"],[2]],
+[8,"Copyright protects:",["Original creative expression such as books, music and software code","Ideas and concepts themselves","Brand names and logos","Inventions and processes"],[0]],
+[9,"Which Government of India initiative gives startups recognition, tax benefits and access to a fund of funds?",["Startup India","Swachh Bharat","Smart Cities Mission","Digital Locker"],[0]],
+[9,"What is equity dilution?",["An increase in product price","A reduction in the founders' ownership percentage when new shares are issued","Losing a patent","A fall in employee count"],[1]],
+[9,"Venture capital firms usually invest in exchange for:",["Equity (an ownership share) in the startup","Fixed monthly interest only","Free products","Government tax credits"],[0]],
+[9,"Which funding stage usually comes first for a startup?",["Series C","Series A","Seed or angel round","IPO"],[2]],
+[10,"In Synectics, a “symbolic analogy” uses:",["Imagining yourself as the object","A direct comparison with nature","Compressed, poetic or abstract images to describe the problem","Detailed cost analysis"],[2]],
+[10,"In Synectics, a “fantasy analogy” involves:",["Imagining ideal or even impossible solutions without constraints","Directly comparing the problem with biology","Doing a detailed cost analysis","Becoming part of the problem yourself"],[0]],
+[10,"Which is an example of a forming prototyping method?",["3D printing","Vacuum forming or injection moulding","CNC milling","Laser cutting"],[1]],
+[10,"Deductive reasoning moves from:",["Specific observations to a general rule","A general rule to a specific conclusion","Guesses to final products","Customers to investors"],[1]],
+[11,"Which of these is an example of assistive technology?",["A video game console","A luxury watch","Screen reader software for visually impaired users","A spreadsheet template"],[2]],
+[11,"Inclusive design primarily aims to:",["Consider the full range of human diversity, including ability, age and culture","Design only for young users","Reduce the product range","Maximise the price"],[0]],
+[11,"In B2B sales, the buying decision is usually:",["Made instantly by one impulse buyer","Made by several stakeholders in the organisation, with a longer sales cycle","Left to random selection","Made only by the end user"],[1]],
+[11,"What does “scalability” mean for a business?",["Hiring one employee per customer","Staying the same size","Being able to weigh products accurately","Growing revenue without a proportional increase in costs"],[3]],
+[12,"What is a go-to-market (GTM) strategy?",["A plan for how the company will launch and sell its product to target customers","A plan to exit the market","A manufacturing schedule","An HR policy"],[0]],
+[12,"Which marketing approach relies on customers recommending the product to others?",["Cold calling","Billboard advertising","Word-of-mouth or referral marketing","Printed catalogues"],[2]],
+[12,"In an investor pitch, “the ask” refers to:",["The founders' salaries","The amount of funding sought and how it will be used","Questions from the audience","The product price"],[1]],
+[12,"Which of these is a traction metric investors look for?",["Number of office chairs","Founders' hobbies","Length of the pitch deck","Growth in active users or revenue"],[3]]
 ];
 
 const QS=[...ORIGINAL.map((a,i)=>({id:"o"+i,w:a[0],t:a[1],o:a[2],a:a[3],x:false})),
@@ -457,8 +544,11 @@ $("reveal").onchange=e=>{cfg.reveal=e.target.checked;save()};
 $("start").onclick=()=>{const rev=cfg.mode==="practice"&&cfg.reveal;begin(pool(),rev?"review":cfg.mode,cfg.mode==="test"?"Test":rev?"Revision":"Practice")};
 $("mock").onclick=()=>{const pick=shuffle(QS.filter(q=>(q.x&&cfg.extra)||(!q.x&&cfg.orig))).slice(0,65);begin(cfg.shufQ?pick:pick.sort((a,b)=>QS.indexOf(a)-QS.indexOf(b)),"test","Mock test")};
 
+$("notesBtn").onclick=()=>show("notes");
+$("notesBack").onclick=$("notesBack2").onclick=()=>{show("home");renderHome()};
+
 /* ---------- QUIZ ---------- */
-function show(v){for(const id of ["home","quiz","result"])$(id).hidden=id!==v;window.scrollTo(0,0)}
+function show(v){for(const id of ["home","quiz","result","notes"])$(id).hidden=id!==v;window.scrollTo(0,0)}
 function begin(list,mode,name){
   const test=mode==="test";
   const qs=test&&cfg.shufQ?shuffle(list):list.slice();
