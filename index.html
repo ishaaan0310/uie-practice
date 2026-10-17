@@ -121,6 +121,9 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
         <label class="check" for="shufQ"><input type="checkbox" id="shufQ"><span>Shuffle questions<small>Ask questions in a random order</small></span></label>
         <label class="check" for="shufO"><input type="checkbox" id="shufO"><span>Shuffle answer options<small>Mix up the order of A–D (“All of the above” stays last)</small></span></label>
       </div>
+      <div class="checks" id="practiceOpts" hidden>
+        <label class="check" for="reveal"><input type="checkbox" id="reveal"><span>Show answers<small>Correct answers are highlighted from the start, for quick revision</small></span></label>
+      </div>
     </div>
 
     <div class="panel">
@@ -375,7 +378,7 @@ const $=id=>document.getElementById(id);
 const store={get(k,d){try{const v=localStorage.getItem("uie."+k);return v?JSON.parse(v):d}catch(e){return d}},
              set(k,v){try{localStorage.setItem("uie."+k,JSON.stringify(v))}catch(e){}}};
 
-let cfg=Object.assign({mode:"practice",weeks:[...WEEKS],orig:true,extra:true,shufQ:true,shufO:true},store.get("cfg",{}));
+let cfg=Object.assign({mode:"practice",weeks:[...WEEKS],orig:true,extra:true,shufQ:true,shufO:true,reveal:false},store.get("cfg",{}));
 cfg.weeks=cfg.weeks.filter(w=>WEEKS.includes(w));
 let S=null, tick=null, quitArmed=false;
 const BYID=Object.fromEntries(QS.map(q=>[q.id,q]));
@@ -410,9 +413,11 @@ function renderHome(){
   $("mPractice").setAttribute("aria-pressed",cfg.mode==="practice");
   $("mTest").setAttribute("aria-pressed",cfg.mode==="test");
   $("modeHint").textContent=cfg.mode==="practice"
-    ?"Answers are checked right away. Questions stay in order."
+    ?(cfg.reveal?"Every question opens with the correct answer in green. Use Next to read through.":"Answers are checked right away. Questions stay in order.")
     :"No answers shown until the end. You see your score and mistakes after finishing.";
   $("testOpts").hidden=cfg.mode!=="test";
+  $("practiceOpts").hidden=cfg.mode!=="practice";
+  $("reveal").checked=!!cfg.reveal;
   $("shufQ").checked=!!cfg.shufQ;
   $("shufO").checked=!!cfg.shufO;
   const w=$("weeks"); w.innerHTML="";
@@ -429,7 +434,7 @@ function renderHome(){
   $("setX").setAttribute("aria-pressed",cfg.extra);
   const n=pool().length;
   $("start").disabled=n===0;
-  $("start").textContent=n?("Start "+(cfg.mode==="test"?"test":"practice")+" · "+n+" questions"):"Pick at least one week";
+  $("start").textContent=n?("Start "+(cfg.mode==="test"?"test":cfg.reveal?"revision":"practice")+" · "+n+" questions"):"Pick at least one week";
   const last=store.get("last",null);
   $("last").textContent=last?("Last result: "+last.c+"/"+last.n+" ("+last.mode+") · "+last.d):"";
 }
@@ -441,7 +446,8 @@ $("shufO").onchange=e=>{cfg.shufO=e.target.checked;save()};
 $("allWeeks").onclick=()=>{cfg.weeks=cfg.weeks.length===WEEKS.length?[]:[...WEEKS];save()};
 $("setO").onclick=()=>{cfg.orig=!cfg.orig;if(!cfg.orig&&!cfg.extra)cfg.extra=true;save()};
 $("setX").onclick=()=>{cfg.extra=!cfg.extra;if(!cfg.orig&&!cfg.extra)cfg.orig=true;save()};
-$("start").onclick=()=>begin(pool(),cfg.mode,cfg.mode==="test"?"Test":"Practice");
+$("reveal").onchange=e=>{cfg.reveal=e.target.checked;save()};
+$("start").onclick=()=>{const rev=cfg.mode==="practice"&&cfg.reveal;begin(pool(),rev?"review":cfg.mode,cfg.mode==="test"?"Test":rev?"Revision":"Practice")};
 $("mock").onclick=()=>{const pick=shuffle(QS.filter(q=>(q.x&&cfg.extra)||(!q.x&&cfg.orig))).slice(0,65);begin(cfg.shufQ?pick:pick.sort((a,b)=>QS.indexOf(a)-QS.indexOf(b)),"test","Mock test")};
 
 /* ---------- QUIZ ---------- */
@@ -450,7 +456,7 @@ function begin(list,mode,name){
   const test=mode==="test";
   const qs=test&&cfg.shufQ?shuffle(list):list.slice();
   S={mode,name,i:0,t0:Date.now(),
-     items:qs.map(q=>({q,order:optionOrder(q,test&&cfg.shufO),pick:[],done:false}))};
+     items:qs.map(q=>({q,order:optionOrder(q,test&&cfg.shufO),pick:mode==="review"?q.a.slice():[],done:mode==="review"}))};
   quitArmed=false;
   startClock(); saveSession();
   show("quiz");renderQ();
@@ -459,7 +465,7 @@ const isRight=it=>it.pick.length===it.q.a.length&&it.pick.every(p=>it.q.a.includ
 function renderQ(){
   const it=S.items[S.i], q=it.q, test=S.mode==="test", n=S.items.length;
   const answered=S.items.filter(x=>x.pick.length>=x.q.a.length).length;
-  $("counter").textContent=(S.i+1)+" / "+n+(test?" · "+answered+" answered":" · "+S.items.filter(x=>x.done&&isRight(x)).length+" correct");
+  $("counter").textContent=(S.i+1)+" / "+n+(S.mode==="review"?" · Revision":test?" · "+answered+" answered":" · "+S.items.filter(x=>x.done&&isRight(x)).length+" correct");
   $("prog").style.width=((S.i+1)/n*100)+"%";
   $("wtag").textContent=wLabel(q.w);
   $("ntag").hidden=!q.x;
@@ -483,11 +489,11 @@ function renderQ(){
   });
   const fb=$("fb"); fb.className="fb"; fb.textContent="";
   if(it.done&&!test){
-    const ok=isRight(it); fb.classList.add(ok?"ok":"no");
-    fb.textContent=ok?"Correct":"Not quite. Correct answer"+(q.a.length>1?"s are":" is")+" highlighted in green.";
+    const ok=isRight(it); if(S.mode!=="review") fb.classList.add(ok?"ok":"no");
+    fb.textContent=S.mode==="review"?"":ok?"Correct":"Not quite. Correct answer"+(q.a.length>1?"s are":" is")+" highlighted in green.";
   }
   $("prev").disabled=S.i===0;
-  $("next").textContent=S.i===n-1?(test?"Finish test":"See results"):"Next";
+  $("next").textContent=S.i===n-1?(test?"Finish test":S.mode==="review"?"Done":"See results"):"Next";
   $("confirm").hidden=true;
 }
 function choose(oi){
@@ -508,7 +514,7 @@ function choose(oi){
 function go(d){
   if(!S) return;
   const n=S.items.length;
-  if(d>0&&S.i===n-1){askFinish();return}
+  if(d>0&&S.i===n-1){if(S.mode==="review"){clearInterval(tick);S=null;saveSession();show("home");renderHome();return}askFinish();return}
   S.i=Math.max(0,Math.min(n-1,S.i+d)); saveSession(); renderQ(); window.scrollTo(0,0);
 }
 function askFinish(){
