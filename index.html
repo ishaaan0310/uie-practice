@@ -1,5 +1,9 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>UIE Practice</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Understanding Incubation and Entrepreneurship: weekly practice, shuffled mock tests and mistake review.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,6 +99,8 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 
+</head>
+<body>
 <div class="wrap">
   <div class="brand"><h1>UIE Practice</h1><span>NPTEL · Understanding Incubation &amp; Entrepreneurship</span></div>
 
@@ -102,31 +108,31 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
   <section id="home" class="wrap" style="gap:16px">
     <div class="panel">
       <div class="seg" role="group" aria-label="Mode">
-        <button id="mPractice" aria-pressed="true">Practice</button>
-        <button id="mTest" aria-pressed="false">Test</button>
+        <button type="button" id="mPractice" aria-pressed="true">Practice</button>
+        <button type="button" id="mTest" aria-pressed="false">Test</button>
       </div>
       <p class="hint" id="modeHint"></p>
     </div>
 
     <div class="panel">
-      <div class="row"><p class="label">Weeks</p><button class="link" id="allWeeks">Select all</button></div>
+      <div class="row"><p class="label">Weeks</p><button type="button" class="link" id="allWeeks">Select all</button></div>
       <div class="weeks" id="weeks"></div>
       <p class="label" style="margin-top:4px">Questions</p>
       <div class="sets">
-        <button class="chip" id="setO" aria-pressed="true"><b>Original</b><small>130</small></button>
-        <button class="chip" id="setX" aria-pressed="true"><b>New likely</b><small>50</small></button>
+        <button type="button" class="chip" id="setO" aria-pressed="true"><b>Original</b><small>130</small></button>
+        <button type="button" class="chip" id="setX" aria-pressed="true"><b>New likely</b><small>50</small></button>
       </div>
     </div>
 
-    <button class="btn primary" id="start">Start</button>
-    <button class="btn ghost" id="mock">Mock test · 65 random questions</button>
+    <button type="button" class="btn primary" id="start">Start</button>
+    <button type="button" class="btn ghost" id="mock">Mock test · 65 random questions</button>
     <p class="last" id="last"></p>
   </section>
 
   <!-- QUIZ -->
   <section id="quiz" class="wrap" style="gap:16px" hidden>
     <div class="qtop">
-      <button class="x" id="quit">✕ Quit</button>
+      <button type="button" class="x" id="quit">✕ Quit</button>
       <span class="grow" id="counter"></span>
       <span id="clock"></span>
     </div>
@@ -140,11 +146,11 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
     </div>
     <div class="confirm" id="confirm" hidden>
       <p id="confirmMsg"></p>
-      <div class="row"><button class="btn danger" id="confirmYes">Finish</button><button class="btn ghost" id="confirmNo">Keep going</button></div>
+      <div class="row"><button type="button" class="btn danger" id="confirmYes">Finish</button><button type="button" class="btn ghost" id="confirmNo">Keep going</button></div>
     </div>
     <div class="nav">
-      <button class="btn ghost" id="prev">Previous</button>
-      <button class="btn primary" id="next">Next</button>
+      <button type="button" class="btn ghost" id="prev">Previous</button>
+      <button type="button" class="btn primary" id="next">Next</button>
     </div>
     <p class="keys">Keys: 1–4 choose · Enter next · ← → move</p>
   </section>
@@ -155,8 +161,8 @@ h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
       <p class="label" id="rMode"></p>
       <div class="score"><strong id="rPct"></strong><span id="rDetail"></span></div>
       <div class="row" style="flex-wrap:nowrap">
-        <button class="btn primary" id="retry">Retry mistakes</button>
-        <button class="btn ghost" id="home2">Home</button>
+        <button type="button" class="btn primary" id="retry">Retry mistakes</button>
+        <button type="button" class="btn ghost" id="home2">Home</button>
       </div>
     </div>
     <p class="label" id="rListLabel"></p>
@@ -363,6 +369,20 @@ const store={get(k,d){try{const v=localStorage.getItem("uie."+k);return v?JSON.p
 let cfg=store.get("cfg",{mode:"practice",weeks:[...WEEKS],orig:true,extra:true});
 cfg.weeks=cfg.weeks.filter(w=>WEEKS.includes(w));
 let S=null, tick=null, quitArmed=false;
+const BYID=Object.fromEntries(QS.map(q=>[q.id,q]));
+function packSession(){return S?{mode:S.mode,name:S.name,i:S.i,t0:S.t0,items:S.items.map(it=>({id:it.q.id,order:it.order,pick:it.pick,done:it.done}))}:null}
+function saveSession(){store.set("session",packSession())}
+function unpackSession(p){
+  if(!p||!Array.isArray(p.items)||!p.items.length) return null;
+  const items=p.items.filter(x=>BYID[x.id]).map(x=>({q:BYID[x.id],order:x.order,pick:x.pick||[],done:!!x.done}));
+  if(!items.length) return null;
+  return {mode:p.mode,name:p.name,i:Math.min(p.i||0,items.length-1),t0:p.t0||Date.now(),items};
+}
+function startClock(){
+  clearInterval(tick);
+  const upd=()=>{$("clock").textContent=S?fmt(Math.round((Date.now()-S.t0)/1000)):""};
+  upd(); tick=setInterval(upd,1000);
+}
 
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 const PIN=/^(all|none|both) of the above$/i;
@@ -386,7 +406,7 @@ function renderHome(){
   const w=$("weeks"); w.innerHTML="";
   for(const wk of WEEKS){
     const n=QS.filter(q=>q.w===wk&&((q.x&&cfg.extra)||(!q.x&&cfg.orig))).length;
-    const b=document.createElement("button");
+    const b=document.createElement("button"); b.type="button";
     b.className="chip"; b.setAttribute("aria-pressed",cfg.weeks.includes(wk));
     b.innerHTML="<b>W"+wk+"</b><small>"+n+" Qs</small>";
     b.onclick=()=>{cfg.weeks=cfg.weeks.includes(wk)?cfg.weeks.filter(x=>x!==wk):[...cfg.weeks,wk];save()};
@@ -418,9 +438,7 @@ function begin(list,mode,name){
   S={mode,name,i:0,t0:Date.now(),
      items:qs.map(q=>({q,order:optionOrder(q,test),pick:[],done:false}))};
   quitArmed=false;
-  clearInterval(tick);
-  tick=setInterval(()=>{$("clock").textContent=S?fmt(Math.round((Date.now()-S.t0)/1000)):""},1000);
-  $("clock").textContent="0:00";
+  startClock(); saveSession();
   show("quiz");renderQ();
 }
 const isRight=it=>it.pick.length===it.q.a.length&&it.pick.every(p=>it.q.a.includes(p));
@@ -437,7 +455,7 @@ function renderQ(){
   $("qnote").hidden=!multi;
   const box=$("opts"); box.innerHTML="";
   it.order.forEach((oi,pos)=>{
-    const b=document.createElement("button");
+    const b=document.createElement("button"); b.type="button";
     b.className="opt"; b.dataset.oi=oi;
     b.innerHTML='<span class="k">'+(pos+1)+'</span><span></span>';
     b.lastChild.textContent=q.o[oi];
@@ -467,17 +485,17 @@ function choose(oi){
   else if(it.pick.length<need) it.pick=[...it.pick,oi];
   else it.pick=[...it.pick.slice(1),oi];
   if(!test&&it.pick.length===need){
-    it.done=true; renderQ();
+    it.done=true; saveSession(); renderQ();
     if(isRight(it)){const at=S.i;setTimeout(()=>{if(S&&S.i===at&&!$("quiz").hidden)go(1)},700)}
     return;
   }
-  renderQ();
+  saveSession(); renderQ();
 }
 function go(d){
   if(!S) return;
   const n=S.items.length;
   if(d>0&&S.i===n-1){askFinish();return}
-  S.i=Math.max(0,Math.min(n-1,S.i+d)); renderQ(); window.scrollTo(0,0);
+  S.i=Math.max(0,Math.min(n-1,S.i+d)); saveSession(); renderQ(); window.scrollTo(0,0);
 }
 function askFinish(){
   const test=S.mode==="test";
@@ -492,7 +510,7 @@ $("prev").onclick=()=>go(-1);
 $("next").onclick=()=>go(1);
 $("quit").onclick=()=>{
   if(!quitArmed){quitArmed=true;$("quit").textContent="Tap again to quit";setTimeout(()=>{quitArmed=false;$("quit").textContent="✕ Quit"},2500);return}
-  clearInterval(tick);S=null;$("quit").textContent="✕ Quit";show("home");renderHome();
+  clearInterval(tick);S=null;saveSession();$("quit").textContent="✕ Quit";show("home");renderHome();
 };
 
 /* ---------- RESULT ---------- */
@@ -519,6 +537,7 @@ function finish(){
     li.append(q,you,ans,meta); ul.appendChild(li);
   }
   S.wrong=wrong.map(it=>it.q);
+  store.set("session",null);
   show("result");
 }
 $("retry").onclick=()=>{const w=S.wrong;begin(w,"practice","Mistakes")};
@@ -534,5 +553,12 @@ document.addEventListener("keydown",e=>{
   else if(e.key==="ArrowLeft"){go(-1)}
 });
 
-renderHome();
+function boot(data){
+  const saved=unpackSession((data&&data.session)||store.get("session",null));
+  renderHome();
+  if(saved){S=saved;quitArmed=false;startClock();show("quiz");renderQ();}
+}
+boot({});
 </script>
+</body>
+</html>
