@@ -1,0 +1,538 @@
+<title>UIE Practice</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Understanding Incubation and Entrepreneurship: weekly practice, shuffled mock tests and mistake review.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap">
+<style>
+/* Layout: one narrow study column; home = setup card, quiz = one question at a time, result = score + review list */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --fg:#17201d; --muted:#5d6b66; --line:#d9e0dd;
+  --accent:#0f6b5c; --accent-soft:#e1efeb; --on-accent:#ffffff;
+  --good:#1d7a3e; --good-soft:#e2f3e7; --bad:#b3261e; --bad-soft:#fbe7e5; --new:#8a5a00; --new-soft:#fbf0d9;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111715; --surface:#19211e; --fg:#e7eeeb; --muted:#9aaaa4; --line:#2c3833;
+  --accent:#4fc2a9; --accent-soft:#1d332d; --on-accent:#0b1512;
+  --good:#5fd08a; --good-soft:#18301f; --bad:#ff8a80; --bad-soft:#3a1d1b; --new:#f0c060; --new-soft:#352a12; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111715; --surface:#19211e; --fg:#e7eeeb; --muted:#9aaaa4; --line:#2c3833;
+  --accent:#4fc2a9; --accent-soft:#1d332d; --on-accent:#0b1512;
+  --good:#5fd08a; --good-soft:#18301f; --bad:#ff8a80; --bad-soft:#3a1d1b; --new:#f0c060; --new-soft:#352a12; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{font-size:1.6rem;letter-spacing:-.01em}
+.brand span{color:var(--muted);font-size:.85rem}
+.label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:700;margin:0}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;padding:10px;border-radius:7px;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:0 1px 3px rgb(0 0 0 / .12)}
+.hint{margin:0;color:var(--muted);font-size:.9rem}
+.weeks{display:grid;grid-template-columns:repeat(auto-fill,minmax(68px,1fr));gap:8px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:8px 6px;display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.chip b{font-size:.95rem}.chip small{color:var(--muted);font-size:.72rem;font-variant-numeric:tabular-nums}
+.chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--fg)}
+.chip[aria-pressed="true"] small{color:var(--accent)}
+.link{border:0;background:none;color:var(--accent);font-weight:700;padding:4px 0;font-size:.9rem}
+.sets{display:flex;gap:8px;flex-wrap:wrap}
+.sets .chip{flex-direction:row;gap:8px;padding:9px 12px}
+.btn{border:0;border-radius:10px;padding:14px 16px;font-weight:700;font-size:1rem;width:100%}
+.primary{background:var(--accent);color:var(--on-accent)}
+.primary:disabled{opacity:.45;cursor:not-allowed}
+.ghost{background:transparent;border:1px solid var(--line)}
+.last{margin:0;color:var(--muted);font-size:.85rem;text-align:center}
+/* quiz */
+.qtop{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.qtop .grow{flex:1}
+.x{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:.85rem}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--accent-soft);color:var(--accent);letter-spacing:.03em}
+.tag.new{background:var(--new-soft);color:var(--new)}
+#qtext{font-family:var(--body);font-size:1.2rem;line-height:1.4;font-weight:700}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:12px 14px;width:100%}
+.opt .k{flex:none;width:26px;height:26px;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font-size:.8rem;font-weight:700;color:var(--muted)}
+.opt span:last-child{min-width:0}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .k{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.opt.ok{border-color:var(--good);background:var(--good-soft)}
+.opt.ok .k{background:var(--good);color:var(--surface);border-color:var(--good)}
+.opt.no{border-color:var(--bad);background:var(--bad-soft)}
+.opt.no .k{background:var(--bad);color:var(--surface);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.fb{margin:0;font-weight:700;min-height:1.5em}
+.fb.ok{color:var(--good)}.fb.no{color:var(--bad)}
+.nav{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.confirm{border:1px solid var(--bad);background:var(--bad-soft);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.confirm p{margin:0}
+.confirm .row{justify-content:flex-start}
+.confirm .btn{width:auto;padding:10px 14px}
+.danger{background:var(--bad);color:var(--surface)}
+/* result */
+.score{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.score strong{font-family:var(--display);font-size:3rem;line-height:1}
+.score span{color:var(--muted)}
+.review{display:flex;flex-direction:column;gap:10px;padding:0;margin:0;list-style:none}
+.review li{border:1px solid var(--line);border-left:4px solid var(--bad);background:var(--surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.review .q{font-weight:700}
+.review .you{color:var(--bad);font-size:.92rem}
+.review .ans{color:var(--good);font-size:.92rem}
+.review small{color:var(--muted)}
+.keys{color:var(--muted);font-size:.8rem;text-align:center;margin:0}
+@media (hover:none){.keys{display:none}}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+
+<div class="wrap">
+  <div class="brand"><h1>UIE Practice</h1><span>NPTEL · Understanding Incubation &amp; Entrepreneurship</span></div>
+
+  <!-- HOME -->
+  <section id="home" class="wrap" style="gap:16px">
+    <div class="panel">
+      <div class="seg" role="group" aria-label="Mode">
+        <button id="mPractice" aria-pressed="true">Practice</button>
+        <button id="mTest" aria-pressed="false">Test</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+    </div>
+
+    <div class="panel">
+      <div class="row"><p class="label">Weeks</p><button class="link" id="allWeeks">Select all</button></div>
+      <div class="weeks" id="weeks"></div>
+      <p class="label" style="margin-top:4px">Questions</p>
+      <div class="sets">
+        <button class="chip" id="setO" aria-pressed="true"><b>Original</b><small>130</small></button>
+        <button class="chip" id="setX" aria-pressed="true"><b>New likely</b><small>50</small></button>
+      </div>
+    </div>
+
+    <button class="btn primary" id="start">Start</button>
+    <button class="btn ghost" id="mock">Mock test · 65 random questions</button>
+    <p class="last" id="last"></p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="wrap" style="gap:16px" hidden>
+    <div class="qtop">
+      <button class="x" id="quit">✕ Quit</button>
+      <span class="grow" id="counter"></span>
+      <span id="clock"></span>
+    </div>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="panel">
+      <div class="row" style="justify-content:flex-start"><span class="tag" id="wtag"></span><span class="tag new" id="ntag" hidden>New</span></div>
+      <h2 id="qtext"></h2>
+      <p class="hint" id="qnote"></p>
+      <div class="opts" id="opts"></div>
+      <p class="fb" id="fb"></p>
+    </div>
+    <div class="confirm" id="confirm" hidden>
+      <p id="confirmMsg"></p>
+      <div class="row"><button class="btn danger" id="confirmYes">Finish</button><button class="btn ghost" id="confirmNo">Keep going</button></div>
+    </div>
+    <div class="nav">
+      <button class="btn ghost" id="prev">Previous</button>
+      <button class="btn primary" id="next">Next</button>
+    </div>
+    <p class="keys">Keys: 1–4 choose · Enter next · ← → move</p>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="wrap" style="gap:16px" hidden>
+    <div class="panel">
+      <p class="label" id="rMode"></p>
+      <div class="score"><strong id="rPct"></strong><span id="rDetail"></span></div>
+      <div class="row" style="flex-wrap:nowrap">
+        <button class="btn primary" id="retry">Retry mistakes</button>
+        <button class="btn ghost" id="home2">Home</button>
+      </div>
+    </div>
+    <p class="label" id="rListLabel"></p>
+    <ul class="review" id="review"></ul>
+  </section>
+</div>
+
+<script>
+/* [week, question, options, correct option indexes] */
+const ORIGINAL=[
+[0,"What does IPO stand for in the context of business?",["Initial Public Offering","Internal Profit Optimization","International Product Organization","Investment Portfolio Overview"],[0]],
+[0,"Which of the following best describes a partnership?",["A business owned by a single individual","A business structure where two or more individuals share ownership and responsibilities","A government-owned company","A business with no formal ownership structure"],[1]],
+[0,"Problem-solving, critical thinking, and idea generation are techniques used for:",["Analyzing market trends","Enhancing creativity and innovation","Building brand awareness","Streamlining production processes"],[1]],
+[0,"In a SWOT analysis, what does the 'T' represent?",["Treat","Threat","Trick","Tactics"],[1]],
+[0,"Which of the following is not a type of business structure?",["Sole proprietorship","Partnership","Corporation","Trademark"],[3]],
+[0,"What does KPI stand for in business metrics?",["Key Process Indicator","Key Performance Indicator","Knowledge Productivity Index","Key Profit Insight"],[1]],
+[0,"Which of the following is essential for starting a successful business?",["Identifying a target market","Developing a business plan","Securing funding","All of the above"],[3]],
+[0,"What is a key benefit of using social media for business marketing?",["Reducing product quality","Directly engaging with customers and building brand loyalty","Eliminating the need for a website","Limiting customer feedback to specific groups"],[1]],
+[0,"What do OYO Rooms and Swiggy have in common?",["Same business model","Both are tech startups","Both are valued at over $1 billion (Unicorns)","Both business models are free from financial risks"],[2]],
+[0,"Choose the most appropriate definition of entrepreneurship:",["Copying business ideas from other companies","Starting a business","Developing ideas and research papers","Earning profits"],[1]],
+[1,"What makes an idea valuable even if it fails?",["Avoiding collaboration to prevent shared blame","Gaining valuable lessons and insights from the failure","Shifting focus to unrelated projects immediately","Disregarding accountability and blaming external factors"],[1]],
+[1,"What are some key characteristics essential for a business to achieve success?",["The ability to balance expenses while maintaining product quality","Ignoring customer feedback to prioritize internal goals","Strategic planning and adaptability to market changes","Focusing solely on profit maximization"],[2]],
+[1,"What are the primary objectives of selling a product or service, and how do these address customer needs?",["Identifying and fulfilling customer and market needs","Maximizing profits through aggressive pricing strategies","Focusing on complex promotional campaigns","Offering discounts to increase sales"],[0]],
+[1,"What makes an idea “disruptive”?",["Maintaining the existing state and avoiding innovation","Imitating successful competitors to gain market share","Introducing changes that challenge existing market norms","Strictly adhering to traditional market standards"],[2]],
+[1,"How does entrepreneurship contribute to economic growth?",["By developing robust business models without innovation","By focusing solely on customer validation and discovery","By identifying and solving market problems effectively","By avoiding competitive risks through market isolation"],[2]],
+[1,"What is emphasized in the Lean Startup methodology for product development?",["Graduation degrees as a prerequisite for entrepreneurship","Rigid execution of initial business plans","Financial optimization over product innovation","Continuous learning and validation through customer feedback"],[3]],
+[1,"What are the key objectives of the Lean Startup methodology when launching a new product or service?",["Customer validation and iterative development","Company building without market analysis","Rapid scaling and long-term planning","Agile engineering without customer feedback"],[0]],
+[1,"How do institutions foster innovation and entrepreneurship effectively?",["By connecting academic research to practical applications in the market","By focusing exclusively on theoretical research","By isolating themselves from marketplace collaborations","By discouraging experimentation within the institution"],[0]],
+[1,"How can evidence-based entrepreneurship be defined and applied effectively?",["By utilizing validated learning through continuous experimentation and data analysis","By implementing the Build-Measure-Learn cycle to iteratively develop and improve products","By making decisions based on empirical evidence rather than assumptions","By regularly engaging with customers to gather feedback and validate ideas"],[0,1,2,3]],
+[1,"What are some common mistakes startups make?",["Adopting the Lean Startup methodology","Focusing too much on the product and neglecting the market","Developing solutions without engaging potential customers","Preparing a business plan and estimating market size"],[1,2]],
+[2,"What can be the main reason for the failure of a startup?",["No real need for the product or service","A skilled and experienced team","Having sufficient investors and funding","Offering a user-friendly product"],[0]],
+[2,"Which among the following could be a crucial factor in a team’s unity and success?",["Individual achievements","Lack of diversity","Frequent disagreements","Shared vision and common ideology"],[3]],
+[2,"What are the key objectives of startup founders when launching a product?",["Achieving rapid market entry without validation","Iterative development and customer-centric learning","Long-term planning without short-term feedback","Building internal teams over market exploration"],[1]],
+[2,"How do customer interactions contribute to effectively identifying and addressing market needs?",["By gathering direct feedback on products and services","By uncovering customer pain points and preferences","By validating business ideas and assumptions","All of the above"],[3]],
+[2,"What role do early adopters play in helping a company refine its products or services?",["Assist in marketing the product to a broader audience","Provide critical feedback to improve the product","Expand production capacity to meet demands","Offer financial support for scaling operations"],[1]],
+[2,"Which misconception can mislead startup founders during the growth phase?",["Securing funding guarantees success","Scaling the team strategically","Prioritizing customer needs over product development","Focusing on team-building over business goals"],[0]],
+[2,"Who plays the most crucial role in validating the success of a startup's product or service?",["The founder","The investors","The customers","The marketing teams"],[2]],
+[2,"What actions should founders take when faced with stagnation in progress?",["Reevaluate the business strategy and pivot if necessary","Increase marketing efforts and budget","Ignore the issue and hope for improvement","Cut down on expenses and reduce team size"],[0]],
+[2,"What characteristics are essential for a startup team to achieve long-term success?",["Strong leadership and vision","Effective communication and collaboration","Ignoring customer feedback's and focusing on company vision","Limited market research and focusing on advertisement"],[0,1]],
+[2,"What is an essential quality that startup founders must possess?",["Strong belief in the startup's vision","Pursuit of endless funding","Rapid product development skills","Exceptional programming expertise"],[0]],
+[3,"What role does empathy play while designing a product?",["Enhances aesthetics","Reduces manufacturing costs","Fosters competition among designers","Promotes user-centered design"],[3]],
+[3,"What characteristics are crucial for building an ideal team?",["A varied skill set and diverse perspectives","Singular expertise in a specific domain","Limited experience and collaboration","A homogeneous team with similar backgrounds"],[0]],
+[3,"Why is it important to take a product category approach instead of a single-product approach?",["Encourages risk diversification and adaptability","Focuses solely on cost-cutting measures","Reduces customer engagement and feedback","Limits the scope of market exploration"],[0]],
+[3,"What are the key qualities that each team member must possess when working as a team?",["Flexibility and willingness to adapt","Lowering ego and collaborating effectively","Taking specific roles to solve problems","All of the above"],[3]],
+[3,"What are the key elements essential for creating a clear and concise design brief?",["Functional and user requirements","Budget estimates and target audience","Project timeline and brand vision","Comprehensive technical specifications"],[0]],
+[3,"What is the importance of collaborative design in product development?",["Facilitates resource sharing and expertise integration","Streamlines manufacturing processes","Enhances aesthetic appeal of the product","Simplifies administrative tasks"],[0]],
+[3,"How can using regulatory barriers help in product design?",["Simplifies administrative processes","Encourages unrestricted innovation","Ensures public health protection and legal compliance","Promotes informal market practices"],[2]],
+[3,"Which element is essential for crafting an effective problem statement?",["Providing a detailed solution","Defining the problem clearly","Establishing a strict budget","Highlighting only the team's capabilities"],[1]],
+[3,"What is a crucial factor in driving successful innovation within an organization?",["Strict compliance with established procedures","Competition between internal teams","Interdisciplinary collaboration","Extensive financial resources"],[2]],
+[3,"Identify the term used for “Previously granted patents and published patent applications.”",["Prior art","Reference documents","Past literature","Intellectual archives"],[0]],
+[4,"What could cause a startup to fail despite having an innovative product?",["Addressing user pain points effectively","Prioritizing customer satisfaction","Lack of understanding of customer needs","Regular customer feedback for product improvement"],[2]],
+[4,"Which of the following best captures the essence of the ‘outside-in thinking’ approach in product design?",["Creating products that cater to customer requirements","Enhancing internal operational processes","Focusing on excessive engineering solutions","Disregarding customer feedback in decision-making"],[0]],
+[4,"In which areas do startups face challenges during their early stages?",["Scaling the business quickly","Building a skilled and cohesive team","Acquiring venture capital easily","Creating an effective marketing strategy"],[1]],
+[4,"What strategies can effectively promote sustainable products in rural markets?",["Social media campaigns targeting urban audiences","Distribution through government schemes","Online marketing through digital platforms","Door-to-door sales in urban regions"],[1]],
+[4,"What are some effective strategies to increase awareness about sustainable products?",["Collaborating with influential figures and forming partnerships","Solely relying on multi-level marketing and digital advertisements","Hosting engaging and interactive demonstrations","Building and educating communities"],[0,2,3]],
+[4,"How can pricing strategies improve the accessibility and financial viability of sustainable products?",["Offering direct sales without intermediaries","Government subsidies for eco-friendly products","Encouraging bulk orders from organizations","All of the above"],[3]],
+[4,"What factors are critical for a startup to attract investors?",["Demonstrating a real and solvable problem","Ignoring competition in the market","Focusing solely on futuristic technology","Providing vague or exaggerated solutions"],[0]],
+[4,"What key considerations should businesses keep in mind when entering a new market?",["Understanding the cultural and economic environment","Avoiding market research and going with instincts","Ignoring local regulations and norms","Relying solely on existing products and services without adaptation"],[0]],
+[4,"How are urgent or active problems identified on the problem recognition scale?",["By ignoring the problem entirely","Recognizing a problem and actively seeking a solution","Recognizing a problem but refusing to act on it","Adjusting to the problem without solving it"],[1]],
+[4,"In the passive problem stage, what defines an individual's awareness of a problem on the problem recognition scale?",["No awareness of the problem exists","Awareness of the problem but no motivation to change","Motivation to change without understanding the problem","Recognizing the problem but being unable to act on it"],[1]],
+[5,"What strategies are crucial for converting academic research into practical societal benefits?",["Establishing obstacles to innovation","Partnering with industries to link research with real-world applications","Keeping research results confidential","Engaging in rivalry with industries to demonstrate academic dominance"],[1]],
+[5,"Why are investors often reluctant to invest in healthcare product startups?",["High profit margins in the industry","Poor success rates of medical devices","Rapidly growing demand for medical devices","Shorter research and development cycles"],[1]],
+[5,"What initial step is crucial for developing a successful design solution?",["Identifying the problem and understanding functional requirements","Planning marketing campaigns and advertising strategies","Conducting employee training and managing resources","Securing Intellectual Property Rights and patents"],[0]],
+[5,"What role did telemedicine play in improving healthcare during global pandemics?",["Increased healthcare costs without benefits","Reduced the strain on physical healthcare facilities","Created barriers for patient access to care","Complicated the delivery of medical services"],[1]],
+[5,"What is the main purpose of pilot production in the development process?",["Generating marketing and advertising content","Testing and adapting design features based on user feedback","Filing for patents before large-scale production","Conducting research in controlled lab environments"],[1]],
+[5,"At which point in the innovation process should businesses prioritize securing Intellectual Property Rights (IPR) to protect their inventions?",["During the initial idea conception","After developing a working prototype","Before commercializing the product","Once the product is widely available in the market"],[2]],
+[5,"Who is eligible to obtain licenses for Intellectual Property Rights (IPR)?",["Start-ups only","Industry professionals only","Non-Governmental Organizations (NGOs) only","All of the above"],[3]],
+[5,"What does TRL stand for in the context of innovation and development?",["Technology Readiness Levels","Transition and Research Limits","Technological Resource Level","Test and Reliability Levels"],[0]],
+[5,"What key aspect should be prioritized when developing a Proof of Concept (POC)?",["Demonstrating functional feasibility","Implementing industrial techniques for scalability","Securing patent protection during initial stages","Brainstorming creative ideas without practical implementation"],[0]],
+[5,"What are the best practices for defining the functional requirements of a project?",["Conducting thorough stakeholder interviews to gather insights","Ignoring end-user feedback and relying on assumptions","Prioritizing features based on developer convenience","Overlooking the project scope and timeline"],[0]],
+[6,"Which key elements are essential for successfully engaging customers using a human- centered approach in product development?",["Utilizing lean methods and tools","Building empathy and conducting user research","Relying on traditional marketing strategies","Concentrating solely on product ideas"],[1]],
+[6,"Which factor is most critical when aligning a product with customer expectations during development?",["Conducting iterative testing and feedback loops","Emphasizing aesthetic appeal over functionality","Ignoring competitor analysis","Skipping the prototyping phase"],[0]],
+[6,"How do design thinking, user research, and strategic planning benefit an organization?",["Links business operations with innovation efforts","Helps build mock-ups for product testing","Focuses on generating creative ideas only","Encourages quick decision-making without research"],[0]],
+[6,"What should the primary objective of a design researcher and strategist be when working for a client?",["Focus solely on the product's core idea","Balance user needs, technological feasibility, and business objectives","Ensure customer experience takes precedence over business goals","Prioritize technical feasibility over desirability"],[1]],
+[6,"Which strategy is most effective for encouraging interviewees to share valuable information?",["Asking complex and detailed questions","Beginning with secondary objectives","Building rapport and trust with the interviewee","Employing a rigid and formal interview structure"],[2]],
+[6,"What are the essential characteristics of a robust design brief?",["Providing detailed technical specifications and timelines","Outlining comprehensive marketing strategies","Including extensive budget estimates","Identifying user pain points, mapping user journeys, and ensuring ecosystem fit"],[3]],
+[6,"What is design management in relation to achieving organizational goals?",["Lateral thinking and creativity","Overseeing design teams and their timelines","Collaboration between stakeholders to meet business goals","A structured process for fulfilling business objectives through design"],[3]],
+[6,"What are the three key qualities that a client seeks in a design firm?",["Discipline, speed, and high fees","Quality, speed, and transparency","Collaboration, extended timelines, and reliability","Minimal interaction, predictability, and discipline"],[1]],
+[6,"What should be included in a comprehensive design brief to ensure project success?",["Detailed project timeline and budget","In-depth competitor analysis and benchmarking","Specific user personas and their pain points","Finalized marketing strategies and plans"],[2]],
+[6,"Why is it important for designers to empathize with both users and business goals?",["To ensure marketing and advertising success","To prioritize aesthetics over functionality","To balance creative ideas with realistic objectives","To reduce the complexity of the design process"],[2]],
+[7,"Which approach emphasizes collaboration, iteration, and a non-linear process to develop innovative solutions?",["Economic stability","Design thinking","Complacency","Short-term focus"],[1]],
+[7,"What is a problem-solving methodology that encourages creative thinking by connecting seemingly unrelated concepts?",["Brainstorming","Synectics","Mind mapping","SWOT analysis"],[1]],
+[7,"What are the most important three critical factors to consider when developing a product?",["Market Need, technical feasibility, and business viability","Advertisement, product packaging, and distribution networks","User sensibility, market size, and product range","Profit, market sensitivity, and employee strength"],[0]],
+[7,"Which tool graphically represents a business model and helps stakeholders understand it easily?",["Business Model Canvas","Balance sheet","Profit and loss statement","Organizational chart"],[0]],
+[7,"What is the meaning of \"Double Whammy\"?",["A situation where two positive events occur simultaneously.","A situation where two adverse events or effects occur simultaneously.","A term used to describe a single unfortunate event.","A financial model for maximizing profits."],[1]],
+[7,"What makes a collaborative model beneficial for entrepreneurship?",["Provides access to resources","Offers networking opportunities","Creates a sense of community","All of the above"],[3]],
+[7,"What distinguishes the fractional ownership business model from other models?",["Shared ownership of physical assets","Focus on virtual assets and digital goods","Primary emphasis on intellectual property rights","Leasing equipment to businesses"],[0]],
+[7,"What key criteria should a business model meet to achieve optimal success?",["High Initial Investment, Extensive Workforce, and Expensive Marketing","Clear Value Proposition, Scalability, and Sustainable Revenue Streams","Low Costs, Rapid Expansion, and Minimal Effort","Single Revenue Source, Limited Target Market, and High Complexity"],[1]],
+[7,"Which key performance metrics help to monitor a business's success?",["Revenue growth, customer acquisition, and value proposition","Employee welfare, operational cost reduction, and inventory turnover","Brand recognition, social media reach, and product diversification","Customer retention, marketing spends, and aesthetic appeal"],[0]],
+[7,"Why is the Lean Canvas a valuable tool for startups?",["Helps secure large investments from venture capitalists","Develops a detailed five-year financial plan","Allows startups to test and iterate on their business model assumptions quickly","Designs a complex organizational structure for future growth"],[2]],
+[8,"What advantages can your business gain from identifying early adopters?",["Competitive disadvantage","Validate market demands through early feedback","Slow revenue generation","Requires less marketing effort"],[1]],
+[8,"What are the key characteristics that early-stage entrepreneurs should develop?",["An entrepreneurial mindset","Adaptability and resilience","Upholding ethical standards","All of the above"],[3]],
+[8,"What is essential for delivering a compelling business pitch to investors?",["Detailed operational procedures","A scalable and profitable business model","Market size and demographics","Long-term industry trends"],[1]],
+[8,"What role does a Minimum Viable Product (MVP) play in product development?",["Builds brand reputation without validation","Attracts early-adopter customers and validates the product idea","Focuses on short-term revenue generation","Prioritizes aesthetics over functionality"],[1]],
+[8,"What are the initial steps involved in developing a Lean Canvas?",["Identify your target customers and users","List your customer’s top three problems","Develop solutions for each identified problem","All of the above"],[3]],
+[8,"What factors must a product have to remain competitive in the market?",["Consistent product improvement and innovation","Incremental price increases","Limited scalability to control costs","Focus on low-impact trends"],[0]],
+[8,"What term is used to describe legal protections that prevent unauthorized use of original creative works?",["Physical property","Intellectual property","Commercial asset","Industrial design"],[1]],
+[8,"Which types of intellectual property rights (IPR) protect innovations and creative works?",["Real estate and buildings","Patents, copyrights, trademarks, and trade secrets","Financial statements and records","Office equipment and tools"],[1]],
+[8,"What is the primary focus of customer acquisition strategies for startups?",["Ensuring long-term customer retention","Maximizing short-term sales revenue","Ignoring customer feedback for cost-saving","Relying on word-of-mouth marketing alone"],[0]],
+[8,"How does a strong Unique Value Proposition (UVP) benefit a startup?",["Enhances the company's ability to attract and retain customers by clearly addressing their needs and preferences","Solely focuses on improving financial performance metrics without considering customer satisfaction","Prioritizes technological infrastructure over understanding customer needs","Concentrates on offering low-cost services at the expense of quality"],[0]],
+[9,"What barriers must a designer or entrepreneur overcome to turn an idea into action?",["Lack of confidence in their skills","Fear of negative feedback","Difficulty in securing funding","All of the above"],[3]],
+[9,"What is the most important relationship for a startup to manage?",["Funding sources","Target customers","Technological infrastructure","Market needs"],[1]],
+[9,"What types of funding are typically sought by early-stage entrepreneurs or startups?",["Government grants","Seed funding and crowdfunding","Long-term loans with high interest rates","Equity funds"],[0,1]],
+[9,"What are some reasons why certain regions may lag in techno-entrepreneurial ventures?",["Education is focused solely on securing jobs","Abundance of natural resources reduces the need for innovation","Government policies discourage entrepreneurship","All of the above"],[3]],
+[9,"What is the purpose of the incubation stage in the entrepreneurial journey?",["Developing a business plan and securing resources","Taking a product idea to commercialization","Conducting advanced research and development","Scaling the business for global markets"],[0]],
+[9,"How does the role of an entrepreneur differ from that of an innovator?",["Entrepreneurs focus on maximizing profits, while innovators solve problems without business goals","Entrepreneurs see problems as business opportunities, while innovators focus solely on solving problems","Entrepreneurs work alone, while innovators always work in teams","Entrepreneurs need formal education, while innovators rely on creativity"],[1]],
+[9,"What is the purpose of clinical immersion in the healthcare sector for entrepreneurs?",["To provide administrative training and management skills","To identify unmet needs and gather insights for innovation","To develop marketing strategies for healthcare products","To focus on financial analysis and budget planning"],[1]],
+[9,"What key factor ensures better execution of an entrepreneurial idea?",["Clear definition of customer needs and market gaps","Strong advertising strategy and brand presence","Advanced office infrastructure and equipment","Rigid adherence to the initial business plan"],[0]],
+[9,"What is the process of transferring an idea to industry through intellectual property or technology transfer called?",["Entrepreneurship","Commercialization","Enterprise development","Incubation"],[1]],
+[9,"Which stage of the entrepreneurial journey focuses on the initial creation and development of a startup idea?",["Idea Generation Stage","Research Stage","Incubation Stage","Scaling Stage"],[0]],
+[10,"What creative thinking technique involves individuals imagining themselves as part of the problem or situation they are trying to solve?",["Fantasy analogy","Personal analogy","Symbolic analogy","CAD analogy"],[1]],
+[10,"Which of the following is NOT a typical prototyping method?",["Additive methods","Subtractive methods","Forming methods","Lateral thinking"],[3]],
+[10,"What is the correct sequence during a product development process?",["Ideation → Concept Generation → Prototyping → Testing → Market Launch","Market Research → Concept Generation → Testing → Ideation → Prototyping","Concept Generation → Prototyping → Testing → Market Launch → Ideation","Ideation → Market Launch → Prototype → Testing → Concept Generation"],[0]],
+[10,"Which type of reasoning involves forming general conclusions from specific observations?",["Abductive reasoning","Deductive reasoning","Inductive reasoning","Analytical reasoning"],[2]],
+[10,"How does frugality in product innovation benefit organizations?",["By increasing production costs to maximize resources","By minimizing waste and reducing costs through efficient use of resources","By prioritizing aesthetics over functionality","By focusing solely on rapid scaling without cost considerations"],[1]],
+[10,"What is the primary purpose of a Proof of Concept (POC)?",["To validate the feasibility and viability of a new idea or concept","To generate the final product for market launch","To secure funding for large-scale production","To build prototypes for user feedback"],[0]],
+[10,"What does prototyping aim to achieve in the design process?",["Finalizing the design for immediate market release","Creating models to test and improve design, functionality, and usability","Building large-scale production units for market distribution","Avoiding iterative development to save time"],[1]],
+[10,"What is the primary goal of Synectics in the design process?",["Encouraging exploration and breaking conventional thinking","Generating a single, perfect solution to a problem","Reaching consensus among team members quickly","Applying detailed technical analysis to refine existing concepts"],[0]],
+[10,"How can entrepreneurs effectively collaborate with one another?",["By franchising their mutual businesses","By sharing resources and distributing production responsibilities","By competing in the same market segments","All of the above"],[1]],
+[10,"Why is it important for designers to create prototypes before deploying a product?",["To identify and resolve design flaws early in the process","To use prototypes as the final version for market release","To skip the need for market research and testing","To focus on aesthetics without user input"],[0]],
+[11,"What is the most effective approach for developing products that meet the needs of specially-abled people?",["User-centered design","Exclusivity in design","Profit maximization","Reducing production costs"],[0]],
+[11,"What are the two key aspects to focus on when developing a product using assistive technology?",["Promoting awareness about digital alternatives","Making users independent and fostering social integration","Redesigning existing products for the market","Creating exclusive and expensive solutions"],[1]],
+[11,"What are the critical factors for a product to succeed in the market?",["Being trendy and common","Being relevant and differentiated","Being cheap and generic","Being expensive and complex"],[1]],
+[11,"What should a startup offer to persuade investors or customers to invest in or purchase its product?",["An unrealistic guaranteed return on investment","A unique and differentiated service or product","A vague and unclear value proposition","A low-cost product with limited functionality"],[1]],
+[11,"Why is it advisable to avoid using cheap materials when developing a product, especially in a B2C context?",["Cheap materials reduce production time significantly","Using cheap materials increases return and servicing costs","Cheap materials ensure better brand reputation","Cheap materials improve the product's aesthetic appeal"],[1]],
+[11,"What potential risk factor could affect the viability of a startup's business model?",["Strong customer loyalty and retention","Reliance on a limited number of corporate clients","Rapidly decreasing operational costs","Established brand recognition"],[1]],
+[11,"How does human-to-human interaction benefit product design compare to AI-based solutions?",["AI processes designs faster and more efficiently","Human interaction fosters empathy and understanding of individual needs","AI consistently improves through machine learning","AI offers a broader range of design capabilities"],[1]],
+[11,"How can design contribute to the development of cognitive, motor, and analytical skills in children?",["By creating interactive games that encourage physical movement and coordination","By focusing solely on aesthetic appeal and trendy designs","By using advanced technology for entertainment purposes","By emphasizing cost-effectiveness over engagement"],[0]],
+[11,"What factors should be prioritized when developing a product using evidence-based learning methodologies?",["Understanding target customers and measuring the impact of the solution","Increasing brand recognition and analyzing market competition","Allocating advertising budgets and determining technical specifications","Designing packaging and setting product pricing"],[0]],
+[11,"Why is it essential for a product to align with customer needs and preferences during its design?",["To reduce the cost of production","To ensure long-term customer satisfaction and loyalty","To focus on marketing trends exclusively","To simplify the manufacturing process"],[1]],
+[12,"How does identifying problems early in the product design process help businesses?",["Leads to overemphasis on a single issue","Provides a well-defined direction for development","Assumes problems remain static throughout the process","Overlooks user insights during the design phase"],[1]],
+[12,"What are the benefits of designing modular and customizable products?",["Increased customer satisfaction and enhanced efficiency","Higher production costs and limited scalability","Reduced customer engagement and feedback opportunities","Simplified designs with minimal user options"],[0]],
+[12,"How does analyzing a \"Beachhead market\" help businesses during product launch?",["Spreads resources thinly across multiple segments","Identifies a focused customer segment for initial success","Skips customer research and prioritizes production","Avoids market segmentation entirely"],[1]],
+[12,"How can networking be utilized effectively to harness its full potential?",["Limiting interactions to close friends only","Promoting products through targeted connections","Avoiding industry events and conferences","Keeping networking efforts informal and unstructured"],[1]],
+[12,"What are the advantages of the \"Inverted Pyramid Model\" for product-centric businesses?",["Increased development costs due to complex designs","Improved customer focus by prioritizing their needs","Creation of complex product descriptions for a wider audience","Prioritizing concise messaging with a clear audience focus"],[1]],
+[12,"What is the most crucial step in the product design process to ensure a startup's success?",["Identifying the target customer segment","Ignoring user feedback during early stages","Skipping competitor analysis to save time","Overlooking market research to focus on production"],[0]],
+[12,"What is considered an ideal marketing strategy for startups?",["Expensive and extravagant campaigns","Short-term and aggressive advertising","Innovative and lean strategies","Random and unfocused marketing efforts"],[2]],
+[12,"What factors should be prioritized when designing a product for the market?",["Irrelevant personal opinions and preferences","Customer needs and preferences","Excessive technical details and low usability","Low-impact trends to reduce risks"],[1]],
+[12,"Why is it important to emphasize the product solution when presenting a business idea?",["To focus on irrelevant features for market differentiation","To overemphasize minor market segments","To provide clarity on how the product addresses a specific problem","To focus on overambitious goals for investor appeal"],[2]],
+[12,"What is an essential factor to focus on when pitching a business idea to investors?",["Presenting a vague and unclear concept","Avoiding discussions about market potential","Clearly articulating the value proposition and market fit","Presenting weak financial projections to lower expectations"],[2]]
+];
+
+/* 50 new questions on the same weekly topics, written to match the exam's style */
+const EXTRA=[
+[0,"What is a “unicorn” in the startup ecosystem?",["A company listed on the stock exchange for over 10 years","A privately held startup valued at over $1 billion","A startup funded only by government grants","A business with a single founder and no employees"],[1]],
+[0,"Which document outlines a company's goals, target market, strategy and financial projections?",["Balance sheet","Purchase order","Business plan","Patent application"],[2]],
+[1,"What does the Build–Measure–Learn feedback loop aim to minimize?",["The total time taken to go through the loop","The number of customers interviewed","The product's features to zero","The size of the founding team"],[0]],
+[1,"What is a “pivot” in the Lean Startup methodology?",["Shutting down the company permanently","Raising another round of funding","A structured course correction to test a new hypothesis about the product, strategy or growth","Replacing the founding CEO"],[2]],
+[1,"What is “validated learning”?",["Learning from textbooks before starting a venture","Getting formal approval from investors","Copying features that worked for competitors","Showing through real experiments what customers actually value"],[3]],
+[1,"Which of the following are examples of disruptive innovation?",["Digital cameras replacing film cameras","Streaming services replacing video rental stores","A slightly faster version of an existing processor","Ride-hailing apps challenging traditional taxi services"],[0,1,3]],
+[2,"Why is premature scaling dangerous for a startup?",["It always increases profit margins","It spends resources on growth before product–market fit is achieved","It removes the need for customer validation","It guarantees investor interest"],[1]],
+[2,"What does “product–market fit” mean?",["The product has the most features in its category","Manufacturing costs are at their lowest","The product satisfies a strong market demand","The product has won design awards"],[2]],
+[2,"Which qualities make a co-founding team complementary?",["Different but complementary skill sets","Shared vision and values","Identical backgrounds and expertise","Mutual trust and clear division of roles"],[0,1,3]],
+[2,"Who are early adopters?",["Customers who feel the problem strongly, actively look for solutions and will try an early version","Customers who are the last to try new products","Investors who fund the seed round","Employees who join before launch"],[0]],
+[3,"What is the purpose of a prior art search before filing a patent?",["To find potential investors","To check whether the invention is novel and non-obvious","To design the product packaging","To estimate manufacturing cost"],[1]],
+[3,"What are the three basic criteria for an invention to be patentable?",["Low cost, attractive design and market demand","Popularity, profitability and scalability","Brand value, trademark and copyright","Novelty, inventive step (non-obviousness) and industrial applicability"],[3]],
+[3,"A good problem statement should primarily focus on:",["The proposed solution and technology","The budget and project timeline","The user, their need and the insight behind it","The weaknesses of competitors"],[2]],
+[3,"Which of these is an example of a regulatory barrier in medical device design?",["Customer preference for bright colours","Approval requirements from a drug and device regulatory authority","Availability of social media marketing","Choice of company logo"],[1]],
+[4,"On the problem recognition scale, a customer who is not even aware they have a problem has a:",["Latent problem","Passive problem","Urgent problem","Visionary problem"],[0]],
+[4,"Which customers are the best first target for a startup on the problem recognition scale?",["Those with latent problems they are unaware of","Those who deny the problem exists","Those with urgent, active problems who are already seeking a solution","Those fully satisfied with existing solutions"],[2]],
+[4,"“Inside-out thinking” in product development means:",["Starting from customer needs and working back to the product","Outsourcing production to other companies","Designing the interior of a product first","Starting from the company's own technology and capabilities rather than customer needs"],[3]],
+[4,"Which approaches help sustainable products succeed in rural markets?",["Affordable pricing","Demonstrations and communication in the local language","Partnering with self-help groups or local influencers","Premium urban-style branding only"],[0,1,2]],
+[5,"How many levels are there in the standard Technology Readiness Level (TRL) scale?",["5","7","9","12"],[2]],
+[5,"At which TRL is a technology proven in its operational environment and ready for deployment?",["TRL 1","TRL 4","TRL 6","TRL 9"],[3]],
+[5,"What does TRL 1 represent?",["Basic principles observed and reported","Prototype demonstrated in a relevant environment","System proven in an operational environment","Full-scale manufacturing"],[0]],
+[5,"What is the correct order of these development stages?",["Pilot production → Proof of Concept → Prototype → Mass production","Proof of Concept → Prototype → Pilot production → Mass production","Prototype → Mass production → Proof of Concept → Pilot production","Mass production → Prototype → Proof of Concept → Pilot production"],[1]],
+[6,"In user interviews, which type of question best uncovers insights?",["Leading yes/no questions","Questions that pitch the product","Open-ended questions about past behaviour and experiences","Questions only about future pricing"],[2]],
+[6,"The three lenses of human-centered design are:",["Speed, cost and quality","Desirability, feasibility and viability","Price, product and place","Design, build and sell"],[1]],
+[6,"What is a user journey map?",["A visual of the steps and experiences a user goes through with a product or service","A geographic map of customer locations","The company's organizational chart","A delivery route plan"],[0]],
+[6,"What is a “persona” in design research?",["The company's brand mascot","A profile of the lead investor","The legal identity of the startup","A fictional but research-based representation of a target user"],[3]],
+[7,"How many building blocks does the Business Model Canvas have?",["5","7","9","12"],[2]],
+[7,"Which of these is NOT a building block of the Business Model Canvas?",["Key Partners","Value Propositions","Unfair Advantage","Customer Segments"],[2]],
+[7,"What is the usual sequence of the design thinking process?",["Ideate → Empathize → Test → Define → Prototype","Empathize → Define → Ideate → Prototype → Test","Define → Prototype → Empathize → Ideate → Test","Prototype → Test → Define → Empathize → Ideate"],[1]],
+[7,"Fractional ownership models are commonly used for:",["Free software downloads","Single-use consumables","High-value assets such as holiday homes, private jets or luxury cars","Public utilities only"],[2]],
+[8,"Which of the following can be protected by a trademark?",["A brand name, logo or slogan","A new manufacturing process","A novel or a song","An unpublished business plan"],[0]],
+[8,"Which form of IP protects a confidential formula or process without any registration?",["Patent","Copyright","Trade secret","Industrial design"],[2]],
+[8,"How does an MVP differ from a prototype?",["They are exactly the same thing","A prototype is always sold to customers","An MVP includes every final feature","An MVP is released to real customers to validate demand, while a prototype mainly tests design and function"],[3]],
+[8,"In the Lean Canvas, what does “Unfair Advantage” mean?",["Charging lower prices than competitors","Something that competitors cannot easily copy or buy","Breaking market regulations","Having more employees than rivals"],[1]],
+[9,"What is the main role of a business incubator?",["Buying out promising startups","Supporting early-stage startups with mentorship, infrastructure, networks and sometimes seed funding","Granting patents to inventors","Regulating startup pricing"],[1]],
+[9,"How does an accelerator typically differ from an incubator?",["It runs a short, fixed-term, cohort-based program focused on rapid growth, often for equity","It only provides office space","It works only with large corporations","There is no difference"],[0]],
+[9,"Which funding source invests personal money in very early-stage startups in exchange for equity?",["Commercial banks","Mutual funds","Angel investors","Stock exchanges"],[2]],
+[9,"What is crowdfunding?",["Borrowing a large loan from a single bank","Raising small amounts of money from many people, usually through online platforms","Receiving a government tax refund","Selling the company to a competitor"],[1]],
+[10,"Which Synectics analogy compares the problem to a similar situation in nature or another field (for example, Velcro inspired by burrs)?",["Direct analogy","Personal analogy","Symbolic analogy","Fantasy analogy"],[0]],
+[10,"3D printing is an example of which prototyping method?",["Subtractive","Additive","Forming","Lateral"],[1]],
+[10,"CNC machining, which removes material from a solid block, is an example of:",["Additive method","Forming method","Subtractive method","Joining method"],[2]],
+[10,"Which type of reasoning, closely linked to design thinking, forms the most likely explanation from incomplete information?",["Deductive reasoning","Inductive reasoning","Circular reasoning","Abductive reasoning"],[3]],
+[11,"What is “universal design”?",["Designing only for specially-abled users","Designing one global product with no local changes","Designing with the cheapest possible materials","Designing products usable by all people, as far as possible, without need for adaptation"],[3]],
+[11,"What is the difference between B2B and B2C business models?",["B2B sells to other businesses; B2C sells directly to individual consumers","B2B sells to consumers; B2C sells to businesses","Both sell only to the government","There is no difference"],[0]],
+[11,"Which are risks of depending on a few large clients?",["Losing one client can severely hit revenue","Clients gain strong bargaining power over pricing","Guaranteed long-term growth","Less diversified revenue"],[0,1,3]],
+[11,"Why is differentiation important for a startup's product?",["It increases production complexity","It gives customers a clear reason to choose it over alternatives","It removes the need for marketing","It allows the startup to ignore customer needs"],[1]],
+[12,"After winning its beachhead market, what should a startup typically do next?",["Shut down operations","Stop doing customer research","Expand into adjacent market segments","Target every market at once"],[2]],
+[12,"Which of these are typical sections of an investor pitch deck?",["Problem and solution","Market size and business model","Team and financial projections","Employees' personal hobbies"],[0,1,2]],
+[12,"What does TAM–SAM–SOM stand for in market sizing?",["Total Addressable Market, Serviceable Available Market, Serviceable Obtainable Market","Target, Sales and Operations Metrics","Technology, Strategy and Organization Model","Total Assets, Sales and Operating Margin"],[0]],
+[12,"What is guerrilla marketing?",["Expensive TV-only advertising","Low-cost, unconventional and creative tactics to gain maximum attention","Marketing only to military customers","Avoiding all promotion"],[1]]
+];
+
+const QS=[...ORIGINAL.map((a,i)=>({id:"o"+i,w:a[0],t:a[1],o:a[2],a:a[3],x:false})),
+          ...EXTRA.map((a,i)=>({id:"x"+i,w:a[0],t:a[1],o:a[2],a:a[3],x:true}))];
+const WEEKS=[...new Set(QS.map(q=>q.w))].sort((a,b)=>a-b);
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem("uie."+k);return v?JSON.parse(v):d}catch(e){return d}},
+             set(k,v){try{localStorage.setItem("uie."+k,JSON.stringify(v))}catch(e){}}};
+
+let cfg=store.get("cfg",{mode:"practice",weeks:[...WEEKS],orig:true,extra:true});
+cfg.weeks=cfg.weeks.filter(w=>WEEKS.includes(w));
+let S=null, tick=null, quitArmed=false;
+
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const PIN=/^(all|none|both) of the above$/i;
+function optionOrder(q,mix){
+  const idx=q.o.map((_,i)=>i);
+  if(!mix) return idx;
+  const pinned=idx.filter(i=>PIN.test(q.o[i].trim()));
+  return [...shuffle(idx.filter(i=>!pinned.includes(i))),...pinned];
+}
+function pool(){return QS.filter(q=>cfg.weeks.includes(q.w)&&((q.x&&cfg.extra)||(!q.x&&cfg.orig)))}
+const wLabel=w=>"Week "+w;
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+
+/* ---------- HOME ---------- */
+function renderHome(){
+  $("mPractice").setAttribute("aria-pressed",cfg.mode==="practice");
+  $("mTest").setAttribute("aria-pressed",cfg.mode==="test");
+  $("modeHint").textContent=cfg.mode==="practice"
+    ?"Answers are checked right away. Questions stay in order."
+    :"No answers shown until the end. Questions and options are shuffled.";
+  const w=$("weeks"); w.innerHTML="";
+  for(const wk of WEEKS){
+    const n=QS.filter(q=>q.w===wk&&((q.x&&cfg.extra)||(!q.x&&cfg.orig))).length;
+    const b=document.createElement("button");
+    b.className="chip"; b.setAttribute("aria-pressed",cfg.weeks.includes(wk));
+    b.innerHTML="<b>W"+wk+"</b><small>"+n+" Qs</small>";
+    b.onclick=()=>{cfg.weeks=cfg.weeks.includes(wk)?cfg.weeks.filter(x=>x!==wk):[...cfg.weeks,wk];save()};
+    w.appendChild(b);
+  }
+  $("allWeeks").textContent=cfg.weeks.length===WEEKS.length?"Clear":"Select all";
+  $("setO").setAttribute("aria-pressed",cfg.orig);
+  $("setX").setAttribute("aria-pressed",cfg.extra);
+  const n=pool().length;
+  $("start").disabled=n===0;
+  $("start").textContent=n?("Start "+(cfg.mode==="test"?"test":"practice")+" · "+n+" questions"):"Pick at least one week";
+  const last=store.get("last",null);
+  $("last").textContent=last?("Last result: "+last.c+"/"+last.n+" ("+last.mode+") · "+last.d):"";
+}
+function save(){store.set("cfg",cfg);renderHome()}
+$("mPractice").onclick=()=>{cfg.mode="practice";save()};
+$("mTest").onclick=()=>{cfg.mode="test";save()};
+$("allWeeks").onclick=()=>{cfg.weeks=cfg.weeks.length===WEEKS.length?[]:[...WEEKS];save()};
+$("setO").onclick=()=>{cfg.orig=!cfg.orig;if(!cfg.orig&&!cfg.extra)cfg.extra=true;save()};
+$("setX").onclick=()=>{cfg.extra=!cfg.extra;if(!cfg.orig&&!cfg.extra)cfg.orig=true;save()};
+$("start").onclick=()=>begin(pool(),cfg.mode,cfg.mode==="test"?"Test":"Practice");
+$("mock").onclick=()=>begin(shuffle(QS.filter(q=>(q.x&&cfg.extra)||(!q.x&&cfg.orig))).slice(0,65),"test","Mock test");
+
+/* ---------- QUIZ ---------- */
+function show(v){for(const id of ["home","quiz","result"])$(id).hidden=id!==v;window.scrollTo(0,0)}
+function begin(list,mode,name){
+  const test=mode==="test";
+  const qs=test?shuffle(list):list.slice();
+  S={mode,name,i:0,t0:Date.now(),
+     items:qs.map(q=>({q,order:optionOrder(q,test),pick:[],done:false}))};
+  quitArmed=false;
+  clearInterval(tick);
+  tick=setInterval(()=>{$("clock").textContent=S?fmt(Math.round((Date.now()-S.t0)/1000)):""},1000);
+  $("clock").textContent="0:00";
+  show("quiz");renderQ();
+}
+const isRight=it=>it.pick.length===it.q.a.length&&it.pick.every(p=>it.q.a.includes(p));
+function renderQ(){
+  const it=S.items[S.i], q=it.q, test=S.mode==="test", n=S.items.length;
+  const answered=S.items.filter(x=>x.pick.length>=x.q.a.length).length;
+  $("counter").textContent=(S.i+1)+" / "+n+(test?" · "+answered+" answered":" · "+S.items.filter(x=>x.done&&isRight(x)).length+" correct");
+  $("prog").style.width=((S.i+1)/n*100)+"%";
+  $("wtag").textContent=wLabel(q.w);
+  $("ntag").hidden=!q.x;
+  $("qtext").textContent=q.t;
+  const multi=q.a.length>1;
+  $("qnote").textContent=multi?("Choose "+q.a.length+" answers"):"";
+  $("qnote").hidden=!multi;
+  const box=$("opts"); box.innerHTML="";
+  it.order.forEach((oi,pos)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.dataset.oi=oi;
+    b.innerHTML='<span class="k">'+(pos+1)+'</span><span></span>';
+    b.lastChild.textContent=q.o[oi];
+    if(it.done&&!test){
+      b.disabled=true;
+      if(q.a.includes(oi)) b.classList.add("ok");
+      else if(it.pick.includes(oi)) b.classList.add("no");
+    } else if(it.pick.includes(oi)) b.classList.add("sel");
+    b.onclick=()=>choose(oi);
+    box.appendChild(b);
+  });
+  const fb=$("fb"); fb.className="fb"; fb.textContent="";
+  if(it.done&&!test){
+    const ok=isRight(it); fb.classList.add(ok?"ok":"no");
+    fb.textContent=ok?"Correct":"Not quite. Correct answer"+(q.a.length>1?"s are":" is")+" highlighted in green.";
+  }
+  $("prev").disabled=S.i===0;
+  $("next").textContent=S.i===n-1?(test?"Finish test":"See results"):"Next";
+  $("confirm").hidden=true;
+}
+function choose(oi){
+  const it=S.items[S.i], q=it.q, test=S.mode==="test";
+  if(it.done&&!test) return;
+  const need=q.a.length;
+  if(need===1) it.pick=[oi];
+  else if(it.pick.includes(oi)) it.pick=it.pick.filter(x=>x!==oi);
+  else if(it.pick.length<need) it.pick=[...it.pick,oi];
+  else it.pick=[...it.pick.slice(1),oi];
+  if(!test&&it.pick.length===need){
+    it.done=true; renderQ();
+    if(isRight(it)){const at=S.i;setTimeout(()=>{if(S&&S.i===at&&!$("quiz").hidden)go(1)},700)}
+    return;
+  }
+  renderQ();
+}
+function go(d){
+  if(!S) return;
+  const n=S.items.length;
+  if(d>0&&S.i===n-1){askFinish();return}
+  S.i=Math.max(0,Math.min(n-1,S.i+d)); renderQ(); window.scrollTo(0,0);
+}
+function askFinish(){
+  const test=S.mode==="test";
+  const left=S.items.filter(x=>test?x.pick.length<x.q.a.length:!x.done).length;
+  if(left===0){finish();return}
+  $("confirmMsg").textContent=left+" question"+(left>1?"s are":" is")+" unanswered and will count as wrong.";
+  $("confirm").hidden=false; $("confirmYes").focus();
+}
+$("confirmYes").onclick=finish;
+$("confirmNo").onclick=()=>{$("confirm").hidden=true};
+$("prev").onclick=()=>go(-1);
+$("next").onclick=()=>go(1);
+$("quit").onclick=()=>{
+  if(!quitArmed){quitArmed=true;$("quit").textContent="Tap again to quit";setTimeout(()=>{quitArmed=false;$("quit").textContent="✕ Quit"},2500);return}
+  clearInterval(tick);S=null;$("quit").textContent="✕ Quit";show("home");renderHome();
+};
+
+/* ---------- RESULT ---------- */
+function finish(){
+  clearInterval(tick);
+  const secs=Math.round((Date.now()-S.t0)/1000);
+  const wrong=S.items.filter(it=>!isRight(it));
+  const c=S.items.length-wrong.length, n=S.items.length;
+  $("rMode").textContent=S.name+" · "+fmt(secs);
+  $("rPct").textContent=Math.round(c/n*100)+"%";
+  $("rDetail").textContent=c+" of "+n+" correct";
+  store.set("last",{c,n,mode:S.name.toLowerCase(),d:new Date().toLocaleDateString(undefined,{day:"numeric",month:"short"})});
+  $("retry").hidden=wrong.length===0;
+  $("rListLabel").textContent=wrong.length?("Review · "+wrong.length+" to fix"):"Every answer correct";
+  const ul=$("review"); ul.innerHTML="";
+  for(const it of wrong){
+    const li=document.createElement("li");
+    const q=document.createElement("span"); q.className="q"; q.textContent=it.q.t;
+    const you=document.createElement("span"); you.className="you";
+    you.textContent="Your answer: "+(it.pick.length?it.pick.map(i=>it.q.o[i]).join("; "):"not answered");
+    const ans=document.createElement("span"); ans.className="ans";
+    ans.textContent="Correct: "+it.q.a.map(i=>it.q.o[i]).join("; ");
+    const meta=document.createElement("small"); meta.textContent=wLabel(it.q.w)+(it.q.x?" · New":"");
+    li.append(q,you,ans,meta); ul.appendChild(li);
+  }
+  S.wrong=wrong.map(it=>it.q);
+  show("result");
+}
+$("retry").onclick=()=>{const w=S.wrong;begin(w,"practice","Mistakes")};
+$("home2").onclick=()=>{S=null;show("home");renderHome()};
+
+/* ---------- KEYS ---------- */
+document.addEventListener("keydown",e=>{
+  if($("quiz").hidden||!S||e.metaKey||e.ctrlKey||e.altKey) return;
+  const it=S.items[S.i];
+  if(/^[1-9]$/.test(e.key)){const p=+e.key-1;if(p<it.order.length){choose(it.order[p]);e.preventDefault()}}
+  else if(e.key==="Enter"&&document.activeElement.tagName!=="BUTTON"){go(1);e.preventDefault()}
+  else if(e.key==="ArrowRight"){go(1)}
+  else if(e.key==="ArrowLeft"){go(-1)}
+});
+
+renderHome();
+</script>
